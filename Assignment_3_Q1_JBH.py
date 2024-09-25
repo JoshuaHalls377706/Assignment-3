@@ -469,7 +469,12 @@ table.column('Reference', width=100)
 table.column('Class', width=100)
 table.column('Date', width=100)
 
-table.pack(side='top', fill='both', expand=True)
+# Add a scrollbar
+scrollbar = ttk.Scrollbar(Table_frame, orient='vertical', command=table.yview)
+table.configure(yscroll=scrollbar.set)
+
+scrollbar.pack(side='right', fill='y')
+table.pack(side='left', fill='both', expand=True)
 
 # -- Search and Filter Frames --
 search_frame = Frame(window)
