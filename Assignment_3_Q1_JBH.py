@@ -1,3 +1,12 @@
+# Assignment 3
+
+# Group 137
+# Mitchell Danks        S320289 
+# Joshua Hall           S377706 
+# Brooke Stokes         S364762 
+
+# Repositorie Link : https://github.com/JoshuaHalls377706/Assignment-3.git
+#---------------------------------------------------------------------------
 import csv
 from tkinter import *
 from tkinter import messagebox, filedialog, ttk
