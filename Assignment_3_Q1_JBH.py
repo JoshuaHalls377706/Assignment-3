@@ -373,7 +373,7 @@ COLUMN_HEADERS = ["Job Name", "Job Reference", "Lat", "Long", "Classification", 
 
 # -- Main Frames --
 window = Tk()
-window.geometry('850x550')
+window.geometry('950x550')
 window.title("Ground Investigation Database")
 
 # -- menus --
@@ -399,14 +399,14 @@ Input_Label.grid(row=0, column=0, columnspan=6, pady=(0, 10))
 job_name_label = Label(entry_frame, text="Job Name")
 job_name_label.grid(row=1, column=0, sticky=E, padx=5, pady=5)
 
-job_ref_label = Label(entry_frame, text="Job Reference")
-job_ref_label.grid(row=1, column=2, sticky=E, padx=5, pady=5)
+classification_label = Label(entry_frame, text="Classification")
+classification_label.grid(row=1, column=2, sticky=E, padx=5, pady=5)
 
 completion_date_label = Label(entry_frame, text="Completion Date")
 completion_date_label.grid(row=1, column=4, sticky=E, padx=5, pady=5)
 
-classification_label = Label(entry_frame, text="Classification")
-classification_label.grid(row=2, column=0, sticky=E, padx=5, pady=5)
+job_ref_label = Label(entry_frame, text="Job Reference")
+job_ref_label.grid(row=2, column=0, sticky=E, padx=5, pady=5)
 
 lat_label = Label(entry_frame, text="Latitude")
 lat_label.grid(row=2, column=2, sticky=E, padx=5, pady=5)
@@ -415,17 +415,17 @@ long_label = Label(entry_frame, text="Longitude")
 long_label.grid(row=2, column=4, sticky=E, padx=5, pady=5)
 
 # Create entry fields and place them in the frame
-job_name_entry = Entry(entry_frame, width=15)
+job_name_entry = Entry(entry_frame, width=70)
 job_name_entry.grid(row=1, column=1, padx=5, pady=5)
 
-job_ref_entry = Entry(entry_frame, width=15)
-job_ref_entry.grid(row=1, column=3, padx=5, pady=5)
+classification_entry = Entry(entry_frame, width=15)
+classification_entry.grid(row=1, column=3, padx=5, pady=5)
 
 completion_date_entry = Entry(entry_frame, width=15)
 completion_date_entry.grid(row=1, column=5, padx=5, pady=5)
 
-classification_entry = Entry(entry_frame, width=15)
-classification_entry.grid(row=2, column=1, padx=5, pady=5)
+job_ref_entry = Entry(entry_frame, width=15)
+job_ref_entry.grid(row=2, column=1, padx=5, pady=5, sticky=W)
 
 lat_entry = Entry(entry_frame, width=15)
 lat_entry.grid(row=2, column=3, padx=5, pady=5)
@@ -436,6 +436,7 @@ long_entry.grid(row=2, column=5, padx=5, pady=5)
 # -- Buttons Frame --
 Button_frame = Frame(window, width=100, height=50)
 Button_frame.pack(side='top', padx=10, pady=5)
+
 # Create Buttons
 save_button = Button(Button_frame, text="  Add  ", command=add_item)
 save_button.grid(row=3, column=0, padx=5, pady=5)
@@ -453,7 +454,7 @@ Clear_button = Button(Button_frame, text="Clear Inputs", command=clear_entries)
 Clear_button.grid(row=3, column=4, padx=5, pady=5)
 
 # -- Table fields --
-Table_frame = Frame(window, width=300, height=5000)
+Table_frame = Frame(window, width=500, height=50)
 Table_frame.pack(side='top', padx=20, pady=5)
 
 # Make Table
@@ -462,6 +463,12 @@ table.heading('Name', text='Job Name')
 table.heading('Reference', text='Job Reference')
 table.heading('Class', text='Classification')
 table.heading('Date', text='Completion Date')
+
+table.column('Name', width=500)
+table.column('Reference', width=100)
+table.column('Class', width=100)
+table.column('Date', width=100)
+
 table.pack(side='top', fill='both', expand=True)
 
 # -- Search and Filter Frames --
