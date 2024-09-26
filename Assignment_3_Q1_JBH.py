@@ -366,9 +366,27 @@ def Open_Google_Maps():
     url = f"https://www.google.com/maps?q={latitude},{longitude}"
     webbrowser.open(url)
 
+def sort_column(tree, col):
+    """Sort treeview column when header is clicked."""
+    # Grab all data from the tree
+    data = [(tree.item(child)['values'], child) for child in tree.get_children()]
+    
+    # Sort the data based on the selected column in ascending order
+    data.sort(key=lambda x: x[0][col])
+
+    # Reinsert the data into the treeview
+    for index, (values, child) in enumerate(data):
+        tree.move(child, '', index)
+
+def header_clicked(event):
+    """Handle header click event for sorting."""
+    col = table.identify_column(event.x)  # Get the clicked column
+    col_index = int(col.replace('#', '')) - 1  # Convert to 0-based index
+    sort_column(table, col_index)
+
 # -- Actual Code --
 CSV_FILE_NAME = None
-COLUMN_HEADERS = ["Job Name", "Job Reference", "Lat", "Long", "Classification", "Date of Completion"]
+COLUMN_HEADERS = ["Job Name", "Job Reference", "Lat", "Long", "Classification", "Date of Completion"] 
 
 # -- Main Frames --
 window = Tk()
@@ -471,6 +489,8 @@ table.column('Date', width=100)
 # Add a scrollbar
 scrollbar = ttk.Scrollbar(Table_frame, orient='vertical', command=table.yview)
 table.configure(yscroll=scrollbar.set)
+
+table.bind("<Button-1>", header_clicked)
 
 scrollbar.pack(side='right', fill='y')
 table.pack(side='left', fill='both', expand=True)
