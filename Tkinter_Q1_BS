@@ -1,0 +1,74 @@
+#Tkinter
+
+from tkinter import *
+from tkinter import font as tkFont
+
+#from tkinter.ttk import *
+root = Tk() # creates a blank window
+#window size
+root.geometry("800x480")
+
+#Set Font alternative
+Button_font = tkFont.Font(family='Comic Sans MS', size=15, weight='bold')
+Title_font = tkFont.Font(family='broadway', size=10, weight='bold')
+STitle_font = tkFont.Font(family='Congenial semibold', size=20, weight='bold')
+
+#Label windows
+Labelbot = Label(root, text="I hope you enjoyed this Q1 OPTION for the final assignment \n Developed by Tkinter",font=Title_font,bg="grey", fg="aqua")
+Labelbot.pack(side=BOTTOM,fill=X) # basically places this widget inside the window
+Labeltop = Label(root, text="Sasusage on a stick productions presents ..._",font=Title_font,bg="grey", fg="aqua")
+Labeltop.pack(fill=X) # basically places this widget inside the window
+
+#Label Colours
+Episode = Label(root, text="Episode One", bg="grey", fg="black",font=STitle_font)
+Episode.pack(fill=X)
+Title = Label(root, text="The Crazy Hungry Bandicoot", bg="grey", fg="black",font=STitle_font)
+Title.pack(fill=X) # fill=X - makes the widget as wide as the parent
+LHS = Label(root, bg="grey", fg="grey")
+LHS.pack(side=LEFT, fill=Y)
+RHS = Label(root, bg="grey", fg="grey")
+RHS.pack(side=RIGHT, fill=Y)
+BASE = Label(root, bg="grey", fg="grey")
+BASE.pack(side=BOTTOM, fill=X)
+
+# Frame is a rectangular area that can contain other widgets
+topFrame = Frame(root)
+bottomFrame = Frame(root)
+leftFrame = Frame(root)
+rightFrame = Frame(root)
+
+#set frame location
+topFrame.pack()
+bottomFrame.pack(side=BOTTOM)
+leftFrame.pack(side=LEFT)
+rightFrame.pack(side=RIGHT)
+
+#Button names and location
+button1 = Button(topFrame, text="Button 1", fg="violet",bg="grey",font=Button_font)
+button2 = Button(topFrame, text="Wrong way GO BACK", fg="purple",bg="grey",font=Button_font)
+button3 = Button(topFrame, text="ABORT!", fg="red",bg="grey",font=Button_font)
+button4 = Button(bottomFrame, text="Didn't think this out? CLick ME", fg="purple",bg="grey",font=Button_font)
+jump = Button(leftFrame, text="JUMP", fg="green",bg="grey",font=Button_font)
+stop = Button(rightFrame, text="!!!STOP!!!", fg="red",bg="grey",font=Button_font)
+
+# These buttons will be on top
+button1.pack(side=LEFT) # place as far left as possible
+button2.pack(side=LEFT)
+button3.pack(side=LEFT)
+# Button 4 is on the bottom
+button4.pack(side=BOTTOM)
+# ACTION buttons left right
+jump.pack(side=LEFT)
+stop.pack(side=RIGHT)
+
+
+#Feed the Bandicoot some crackers
+#sausage on a stick productions
+#roast lamb
+
+
+
+
+root.mainloop() # keeps the window open, the close button breaks the loop
+
+
