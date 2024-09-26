@@ -362,7 +362,6 @@ def Open_Google_Maps():
     data = Pull_Silent_selected()
     latitude = data[2]
     longitude = data[3]
-    print(latitude, longitude)
     # URL to drop a pin at the specified coordinates
     url = f"https://www.google.com/maps?q={latitude},{longitude}"
     webbrowser.open(url)
@@ -386,7 +385,7 @@ subMenu.add_command(label="New File", command=create_new_csv_file)
 subMenu.add_command(label="Open File", command=load_csv_file)
 subMenu.add_command(label="Save File", command=export_entire_csv_file)
 subMenu.add_separator()
-subMenu.add_command(label="Export Current", command=Export_csv_file_search)
+subMenu.add_command(label="Export Table", command=Export_csv_file_search)
 
 # -- entry fields --
 entry_frame = Frame(window, width=100, height=50)
@@ -528,7 +527,7 @@ Function_Label.grid(row=0, column=0, columnspan=2,)
 Google_Maps_Button = Button(Extra_Functions_Frame, text="Google Maps", command=Open_Google_Maps)
 Google_Maps_Button.grid(row=1, column=0, padx=10, pady=10)
 
-Export_Button = Button(Extra_Functions_Frame, text="Export Current", command=Export_csv_file_search)
+Export_Button = Button(Extra_Functions_Frame, text="Export Table", command=Export_csv_file_search)
 Export_Button.grid(row=1, column=1, padx=10, pady=10)
 
 # --- Run loop ---
