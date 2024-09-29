@@ -1,19 +1,19 @@
-# Libraries for building GUI 
+# Libraries for building GUI tkinter additions
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import font as tkFont
 from tkinter import Label, Button, Frame  # Importing Button and Label directly
 import tkinter.messagebox as messagebox  # Import messagebox
 
-# Machine Learning libraries 
+# Machine Learning libraries for the image generator may need transformers latest version
 import torch
 from torch.amp import autocast  # this should still work in recent versions
 from diffusers import StableDiffusionPipeline
 
-# Libraries for processing image 
+# Libraries for processing image used to display images in tkinter
 from PIL import ImageTk, Image #custom message boxes
 
-# Private modules 
+# Private modules the log in token to allow access to the image generator on transformers hugging face
 from authtoken import auth_token
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ jump.pack(side=tk.LEFT)
 stop.pack(side=tk.RIGHT)
 
 #---------------------------------------------------------------------------------------------------------------------------
-# Download stable diffusion model from hugging face 
+# Download stable diffusion model from hugging face transformers
 modelid = "CompVis/stable-diffusion-v1-4"
 device = "cuda"
 stable_diffusion_model = StableDiffusionPipeline.from_pretrained(
@@ -190,12 +190,6 @@ def custom_message_box(message, image_path):
 def printName(event):
     custom_message_box("ÓUCH!", "path/to/your/image.png")  # Change the path to your image
 
-# Main application code (your existing code goes here)
-app = tk.Tk()
-app.geometry("532x632")
-app.title("Text to Image app")
-# Your existing setup code...
-
-# Example button for demonstration
+# Example button
 test_button = tk.Button(app, text="Click Me", command=lambda: printName(None))
 test_button.pack(pady=20)
