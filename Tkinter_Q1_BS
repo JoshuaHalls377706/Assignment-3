@@ -1,47 +1,78 @@
-#Tkinter
-
-from tkinter import *
+# Libraries for building GUI 
+import tkinter as tk
+import customtkinter as ctk
 from tkinter import font as tkFont
+from tkinter import Label, Button, Frame  # Importing Button and Label directly
+import tkinter.messagebox as messagebox  # Import messagebox
 
-#from tkinter.ttk import *
-root = Tk() # creates a blank window
-#window size
-root.geometry("800x480")
+# Machine Learning libraries 
+import torch
+from torch.amp import autocast  # this should still work in recent versions
+from diffusers import StableDiffusionPipeline
 
+# Libraries for processing image 
+from PIL import ImageTk, Image #custom message boxes
+
+# Private modules 
+from authtoken import auth_token
+
+#---------------------------------------------------------------------------------------------------------------------------
+
+# Create app user interface
+app = tk.Tk()
+app.geometry("532x632")
+app.title("Text to Image app")
+app.configure(bg='black')
+ctk.set_appearance_mode("light") 
+
+# Create input box on the user interface 
+prompt = ctk.CTkEntry(master=app, height=40, width=512, font=("Arial", 15), text_color="white", fg_color="violet") 
+prompt.place(x=10, y=10)
+
+# Create a placeholder to show the generated image
+img_placeholder = ctk.CTkLabel(master=app, height=512, width=512, text="")
+img_placeholder.place(x=10, y=110)
+#------------------------------------------------------------------------------------------------------------------------------------
+#set up tkinter face ... face
 #Set Font alternative
 Button_font = tkFont.Font(family='Comic Sans MS', size=15, weight='bold')
 Title_font = tkFont.Font(family='broadway', size=10, weight='bold')
 STitle_font = tkFont.Font(family='Congenial semibold', size=20, weight='bold')
 
 #Label windows
-Labelbot = Label(root, text="I hope you enjoyed this Q1 OPTION for the final assignment \n Developed by Tkinter",font=Title_font,bg="grey", fg="aqua")
-Labelbot.pack(side=BOTTOM,fill=X) # basically places this widget inside the window
-Labeltop = Label(root, text="Sasusage on a stick productions presents ..._",font=Title_font,bg="grey", fg="aqua")
-Labeltop.pack(fill=X) # basically places this widget inside the window
+Labelbot = Label(app, text="I hope you enjoyed this Q1 OPTION for the final assignment \n Developed by Tkinter",font=Title_font,bg="grey", fg="aqua")
+Labelbot.pack(side=tk.BOTTOM,fill=tk.X) # basically places this widget inside the window
+Labeltop = Label(app, text="Sasusage on a stick productions presents ..._",font=Title_font,bg="grey", fg="aqua")
+Labeltop.pack(fill=tk.X) # basically places this widget inside the window
 
 #Label Colours
-Episode = Label(root, text="Episode One", bg="grey", fg="black",font=STitle_font)
-Episode.pack(fill=X)
-Title = Label(root, text="The Crazy Hungry Bandicoot", bg="grey", fg="black",font=STitle_font)
-Title.pack(fill=X) # fill=X - makes the widget as wide as the parent
-LHS = Label(root, bg="grey", fg="grey")
-LHS.pack(side=LEFT, fill=Y)
-RHS = Label(root, bg="grey", fg="grey")
-RHS.pack(side=RIGHT, fill=Y)
-BASE = Label(root, bg="grey", fg="grey")
-BASE.pack(side=BOTTOM, fill=X)
+Episode = Label(app, text="Episode One", bg="grey", fg="black",font=STitle_font)
+Episode.pack(fill=tk.X)
+Title = Label(app, text="The Crazy Hungry Bandicoot", bg="grey", fg="black",font=STitle_font)
+Title.pack(fill=tk.X) # fill=X - makes the widget as wide as the parent
+LHS = Label(app, bg="grey", fg="grey")
+LHS.pack(side=tk.LEFT, fill=tk.Y)
+RHS = Label(app, bg="grey", fg="grey")
+RHS.pack(side=tk.RIGHT, fill=tk.Y)
+BASE = Label(app, bg="grey", fg="grey")
+BASE.pack(side=tk.BOTTOM, fill=tk.X)
 
 # Frame is a rectangular area that can contain other widgets
-topFrame = Frame(root)
-bottomFrame = Frame(root)
-leftFrame = Frame(root)
-rightFrame = Frame(root)
+topFrame = Frame(app)
+bottomFrame = Frame(app)
+leftFrame = Frame(app)
+rightFrame = Frame(app)
 
 #set frame location
 topFrame.pack()
-bottomFrame.pack(side=BOTTOM)
-leftFrame.pack(side=LEFT)
-rightFrame.pack(side=RIGHT)
+bottomFrame.pack(side=tk.BOTTOM)
+leftFrame.pack(side=tk.LEFT)
+rightFrame.pack(side=tk.RIGHT)
+
+#Button action event is a mouse click as message box not terminal
+def printName(event):
+#    print("ÓUCH!")#show in terminal
+    messagebox.showwarning('OUCH!')#make random from a dictionary (ouch, rude, dont do that, inappropriate)
 
 #Button names and location
 button1 = Button(topFrame, text="Button 1", fg="violet",bg="grey",font=Button_font)
@@ -51,24 +82,120 @@ button4 = Button(bottomFrame, text="Didn't think this out? CLick ME", fg="purple
 jump = Button(leftFrame, text="JUMP", fg="green",bg="grey",font=Button_font)
 stop = Button(rightFrame, text="!!!STOP!!!", fg="red",bg="grey",font=Button_font)
 
+#activate buttons
+button1.bind("<Button-1>",printName)
+button2.bind("<Button-1>",printName)
+button3.bind("<Button-1>",printName)
+button4.bind("<Button-1>",printName)
+jump.bind("<Button-1>",printName)
+stop.bind("<Button-1>",printName)
+
 # These buttons will be on top
-button1.pack(side=LEFT) # place as far left as possible
-button2.pack(side=LEFT)
-button3.pack(side=LEFT)
+button1.pack(side=tk.LEFT) # place as far left as possible
+button2.pack(side=tk.LEFT)
+button3.pack(side=tk.LEFT)
 # Button 4 is on the bottom
-button4.pack(side=BOTTOM)
+button4.pack(side=tk.BOTTOM)
 # ACTION buttons left right
-jump.pack(side=LEFT)
-stop.pack(side=RIGHT)
+jump.pack(side=tk.LEFT)
+stop.pack(side=tk.RIGHT)
 
+#---------------------------------------------------------------------------------------------------------------------------
+# Download stable diffusion model from hugging face 
+modelid = "CompVis/stable-diffusion-v1-4"
+device = "cuda"
+stable_diffusion_model = StableDiffusionPipeline.from_pretrained(
+    modelid, variant="fp16", torch_dtype=torch.float16, use_auth_token=auth_token
+)
+stable_diffusion_model.safety_checker = None
+stable_diffusion_model.to("cuda")
 
-#Feed the Bandicoot some crackers
-#sausage on a stick productions
-#roast lamb
+#---------------------------------------------------------------------------------------------------------------------------
+# Generate image from text 
+def generate_image(): 
+    """ This function generates an image from text with stable diffusion"""
+    
+    # Debugging: Check if the prompt is retrieved correctly
+    user_input = prompt.get()
+    print(f"User input: {user_input}")  # Check in the console if the prompt is getting retrieved
+    
+    # If the input is empty, show an alert box
+    if not user_input.strip():
+        print("You need to help me out here and type something ...")
+        messagebox.showwarning("Help me out here and type something ...")
+        return
 
+    # Generate image with Stable Diffusion
+    print("Generating image with prompt:", user_input) # Corrected logging
 
+    with autocast('cuda'): 
+        image = stable_diffusion_model(user_input, height=400, width=400, guidance_scale=8.5).images[0]  # Get the image
+    
+    # Debugging: Log successful image generation
+    print("Image generated successfully!")
 
+    # Save the generated image
+    image.save('generatedimage.png')
+    
+    # Convert the generated image to be compatible with ImageTk
+    img = Image.open("generatedimage.png")
+    tk_img = ImageTk.PhotoImage(img)  # Use ImageTk for displaying in tkinter
+    
+    # Update the label with the ImageTk image
+    img_placeholder.configure(image=tk_img) 
+    img_placeholder.image = tk_img  # Keep a reference to avoid garbage collection
 
-root.mainloop() # keeps the window open, the close button breaks the loop
+#---------------------------------------------------------------------------------------------------------------------------
+# Create the trigger button with the correct text configuration
+trigger = ctk.CTkButton(master=app, height=40, width=120, text_color="black", fg_color="yellow", 
+                        text="Generate", command=generate_image)
+trigger.place(x=206, y=60)
 
+app.mainloop()
 
+#-------------------------------------------------------------------------------------
+#Now we want to construct a quiz that feeds into the image generator and and produces four custom items that can be fed into our game...
+#so the key words are imputed into a forced prompt that will generate a a set of similarly themed images.
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------
+#Work on custom message boxes
+# Function to create a custom message box with an image
+def custom_message_box(message, image_path):
+    # Create a new window
+    msg_box = tk.Toplevel()
+    msg_box.title("Custom Message Box")
+    msg_box.geometry("300x200")
+    
+    # Load the image
+    img = Image.open(image_path)
+    img = img.resize((100, 100), Image.ANTIALIAS)  # Resize image if necessary
+    img_tk = ImageTk.PhotoImage(img)
+    
+    # Create a label for the image
+    img_label = tk.Label(msg_box, image=img_tk)
+    img_label.image = img_tk  # Keep a reference to avoid garbage collection
+    img_label.pack(pady=10)
+
+    # Create a label for the message
+    message_label = tk.Label(msg_box, text=message)
+    message_label.pack(pady=10)
+
+    # Create a button to close the message box
+    close_button = tk.Button(msg_box, text="Close", command=msg_box.destroy)
+    close_button.pack(pady=10)
+
+    msg_box.mainloop()
+
+# Button action event is a mouse click
+def printName(event):
+    custom_message_box("ÓUCH!", "path/to/your/image.png")  # Change the path to your image
+
+# Main application code (your existing code goes here)
+app = tk.Tk()
+app.geometry("532x632")
+app.title("Text to Image app")
+# Your existing setup code...
+
+# Example button for demonstration
+test_button = tk.Button(app, text="Click Me", command=lambda: printName(None))
+test_button.pack(pady=20)
