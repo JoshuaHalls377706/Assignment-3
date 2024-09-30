@@ -1,7 +1,9 @@
 """
 What dose this Code do:
 It makes a bullet using a class.
-it then uses that bullet to design a gun.
+it then uses that bullet to design a gun from a class.
+
+check out lines (133 & 135)
 
 Then runs a trial code to see how it behaves
 """
