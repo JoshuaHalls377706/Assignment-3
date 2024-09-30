@@ -19,6 +19,9 @@ from PIL import ImageTk, Image #custom message boxes
 from authtoken import auth_token
 
 #---------------------------------------------------------------------------------------------------------------------------
+#Once finished create classes O_encapsulaion
+#---------------------------------------------------------------------------------------------------------------------------
+
 
 # Create app user interface
 app = tk.Tk()
@@ -67,7 +70,7 @@ RHS = Label(app, bg="black", fg="black")
 RHS.pack(side=tk.RIGHT, fill=tk.Y)
 BASE = Label(app, bg="black", fg="black")
 BASE.pack(side=tk.BOTTOM, fill=tk.X)
-Instruction = Label(app, text="'Please, concentrate and communicate to me the inspiration floating in your mind ...'",font=Default ,bg="black", fg="aqua")
+Instruction = Label(app, text="'Please, concentrate and communicate to me the image inspiration floating in your mind ...'",font=Default ,bg="black", fg="aqua")
 Instruction.place(x=250, y=260)
 
 # Frame is a rectangular area that can contain other widgets
