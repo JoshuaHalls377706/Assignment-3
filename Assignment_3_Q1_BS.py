@@ -16,7 +16,7 @@ from diffusers import StableDiffusionPipeline
 from PIL import ImageTk, Image #custom message boxes
 
 # Private modules the log in token to allow access to the image generator on transformers hugging face
-from authtoken import auth_token
+from authtoken import auth_token #see teams chat
 
 #---------------------------------------------------------------------------------------------------------------------------
 #Once finished create classes O_encapsulaion
