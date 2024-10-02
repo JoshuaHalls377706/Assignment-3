@@ -66,6 +66,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_strength = -10
         self.health = 100  
         self.alive = True
+        self.facing_right = True
 
     def update(self, pressed_keys, lvl2_boxes):
         self.velocity_y += self.gravity
@@ -93,8 +94,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.move_ip(0, 2)
         if pressed_keys[K_LEFT]:
             self.rect.move_ip(-1, 0)
+            self.facing_right = False
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(1, 0)
+            self.facing_right = True
 
         #Boundaries checks
         if self.rect.left < 0:
@@ -130,7 +133,7 @@ class Bullet(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += self.speed  
-        if self.rect.left > screenwidth:  
+        if self.rect.left > screenwidth or self.rect.right < 0:
             self.kill()
 
 #ENEMY1
@@ -300,6 +303,7 @@ while running:
                 running = False
             elif event.key == K_LSHIFT:
                 bullet = Bullet(player.rect.center)
+                bullet.speed = 1 if player.facing_right else -1
                 bullets.add(bullet)
         elif event.type == QUIT:
             running = False
