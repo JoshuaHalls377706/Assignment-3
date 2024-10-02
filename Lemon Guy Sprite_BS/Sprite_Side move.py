@@ -18,7 +18,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("The Greatest Game that Three Heroic Learners Ever Imagined with a lemon-headed friend...")
 
 #BG pic test
-background_image = pygame.image.load("E:/chuditchwerkroom/2024_Werkroom/0000_CDU/2024_CDU/2024 SEM 2/HIT137/Assignment 3/Pygame_working files/Lemon Guy/background2.png")
+background_image = pygame.image.load('background2.png')
 background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale it to fit the screen
 
 #----------------------------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREE
 #----------------------------------------------------------------------------------------------------------------
 
 # Load audio mp3
-footstep_sound = pygame.mixer.Sound("E:/chuditchwerkroom/2024_Werkroom/0000_CDU/2024_CDU/2024 SEM 2/HIT137/Assignment 3/Pygame_working files/Lemon Guy/Lemonsquash.mp3")
+footstep_sound = pygame.mixer.Sound('Lemonsquash.mp3')
 footstep_sound.set_volume(0.05)  # Set to % volume
 
 #----------------------------------------------------------------------------------------------------------------
@@ -44,12 +44,12 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__()
         self.sprites = []
-        self.sprites.append(pygame.image.load('E:/chuditchwerkroom/2024_Werkroom/0000_CDU/2024_CDU/2024 SEM 2/HIT137/Assignment 3/Pygame_working files/Lemon Guy/LG_walk_side0.png'))
-        self.sprites.append(pygame.image.load('E:/chuditchwerkroom/2024_Werkroom/0000_CDU/2024_CDU/2024 SEM 2/HIT137/Assignment 3/Pygame_working files/Lemon Guy/LG_walk_side1.png'))
-        self.sprites.append(pygame.image.load('E:/chuditchwerkroom/2024_Werkroom/0000_CDU/2024_CDU/2024 SEM 2/HIT137/Assignment 3/Pygame_working files/Lemon Guy/LG_walk_side2.png'))
+        self.sprites.append(pygame.image.load('LG_walk_side0.png'))
+        self.sprites.append(pygame.image.load('LG_walk_side1.png'))
+        self.sprites.append(pygame.image.load('LG_walk_side2.png'))
 
         # Load the idle sprite image (replace the path with your actual image path)
-        self.idle_sprite = pygame.image.load('E:/chuditchwerkroom/2024_Werkroom/0000_CDU/2024_CDU/2024 SEM 2/HIT137/Assignment 3/Pygame_working files/Lemon Guy/LG_walk_side2.png')
+        self.idle_sprite = pygame.image.load('LG_walk_side2.png')
         
         self.current_sprite = 0
         self.image = self.sprites[self.current_sprite]
