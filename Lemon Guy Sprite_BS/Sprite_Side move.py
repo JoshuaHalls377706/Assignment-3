@@ -1,9 +1,14 @@
+import os
 import pygame
 import sys
 
 #---------------------------------------------------------------------------------------------------------
 # Game setup 
 #---------------------------------------------------------------------------------------------------------
+
+# Set working directory to where the script is located
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 pygame.init()
 clock = pygame.time.Clock()
 

@@ -1,3 +1,4 @@
+import os
 import pygame
 import math
 
@@ -10,6 +11,9 @@ from pygame.locals import (
     QUIT,
     KEYDOWN,
 )
+
+# Set working directory to where the script is located
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 #----------------------------------------------------------------------------------------------------------------
 #Game Screen load
