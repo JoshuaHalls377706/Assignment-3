@@ -34,13 +34,13 @@ Player class (movements, speed, jump, health, lives) - Methods
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------GURGENT BUGS THAT NEED EXTERMINATION-------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
-Nothing yet but if something comes up we should keep it front and centre for everyone to get onto ASAP!
+Nothing yet but if something comes up we should keep it front and centre for everyone to get onto ASAP! Or just your current mission...
 
 -JBH
 
 -MD
 
--BS
+-BS Finishing Level Background Tiles
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------GURGENT BUGS THAT NEED EXTERMINATION-------------------------------------------------------------------------------------------
@@ -88,6 +88,19 @@ Background = background1..... BS-this may change using one long set eg like an e
 -MD
 
 -BS Idea about the weather is great but will just take up too much time at this point irrelevent to the objectives.
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+Health bar 
+
+-MD I wasnt completely sure about the heart/health system but if you could find graphics for a coloured in heart for health and then an uncoloured heart/broken heart for a loss of life that would be epic 
+ It should be easy to implement with 2 graphics for health/loss of health just replace heart with broken heart or whatever whenever player takes damage 
+ and then reset after each level 
+
+-BS could do lemons or just his head with live face and dead face? ... Ill do lemony heart for now.  
+ 
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------AUDIO-------------------------------------------------------------------------------------------
