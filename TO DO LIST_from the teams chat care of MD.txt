@@ -97,6 +97,7 @@ Health bar
  and then reset after each level 
 
 -BS could do lemons or just his head with live face and dead face? ... Ill do lemony heart for now.  
+@-MD Health bar images uploaded see Health Bar Images BS
  
 
 --------------------------------------------------------------------------------------------------------------------------------------------
