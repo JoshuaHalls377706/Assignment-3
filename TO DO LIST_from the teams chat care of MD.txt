@@ -23,6 +23,11 @@ Player class (movements, speed, jump, health, lives) - Methods
   + Implement a game over screen with the option to restart.
   
   Bonus: Create a dynamic camera that follows the players smoothly.
+  This is what i have so far Key Components of a Dynamic Camera in Pygame:
+     1.Player/Target Positioning: The player or an object acts as the target for the camera, and the camera moves relative to this target's position.
+     2.Offset Calculation: Instead of moving the player sprite itself, the camera calculates an offset that shifts all other elements (tiles, backgrounds, enemies) in the opposite direction. The player stays visually centered, while the world scrolls around them.
+     3.Viewport Limits: To prevent the camera from going out of bounds (showing empty areas outside the map), you can set limits so the camera stops at the edges of the game world.
+     4.Smoothing: Some games implement smooth camera movement (like easing in and out) instead of snapping to the player’s exact position, which gives a more polished, less abrupt effect.
    
 • Q3 All the answers and contributions should be recorded in GitHub till you submit the assignment. So we need to be thrashing this notes page
 
@@ -98,9 +103,24 @@ Health bar
 
 -BS could do lemons or just his head with live face and dead face? ... Ill do lemony heart for now.  
 @-MD Health bar images uploaded see Health Bar Images BS
- 
+
+-MD to code
 
 --------------------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------DYNAMIC CAMERA-------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-MD
+
+-BS The camera class handles the camera’s position, adjusting its view based on the player and keeping him centre.
+    Then define an apply function that shifts all the entities in the game world, moving them backwards away from the lemon guy, who stays in the middle of the screen.
+    The camera is limited by xy coordinates, so it doesn't scroll past the edges of the map.
+    4. the smoothing option seems like you would just randomly adjust the scaleing of the backgound.
+
+-BS Mostly need to confirm if we can tile bground with this camera option or need a full map modern style
+
+    NEED WORK
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
