@@ -5,38 +5,46 @@ To Do:
 Coding: 
 
 Update player health bar design to hearts which disappear when losing health 
+-BS Do you want me to do graphic for this or does someone else want a go?
 
 Implement updated player attributes when class selected - JH 
 
 Set player spawn position 
 
-Graphics: 
 
-Player sprite 
 
 Class logos 
+Graphics: 
 
 Background1 (must include text detailing each class on image and an object on the left side of the screen to indicate the player cannot go left) 
 
 Object Names: 
 
-Background = background1 
-
 Player  
 
 Class1/2/3 
 
- 
 
- 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
- 
+Background = background1 
+-BS currently completing backgrounds will up load Saturday 5th
+-They are cycled tiles as the moment... need MD to communicate on this
+- have a specific scene for the Boss scenes .. see ginger peeps file, he has a ginger tree castle.
 
+-------------------------------------------------------------------------------------------------------------------------------------
+Player sprite 
+-BS uploaded draft see Lemon Guy Sprite_BS waiting for feedback from MD
+- BS working on death scene, just bursts into a yellow puddle... also want to make a joke about yellow rain somewhere, maybe just add rain in a level and he can be like .. I hope thats rain ...
  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Enemy general, need to discuss how many we need 
+-BS Bad Guy ginger Peep uploaded peep draft for MD to comment will need to adjust size depending on what he is to do and also a death sequence that will need more work depending on his 
+ function. 
 
- 
+-BS If we can do like mario and have like 'sorry but you lemon basket is in another castle, or what ever it is ... on each level and just match against ginger peep at the end, that would be easy for me timewise. Or could battle Ginger Peep at the end of each level...., changing his size or colour/he could get more burnt each battle. He could fly and drop lollies once, stand stationary pooping out shooting projectiles, and maybe could use Joshuas rock paper scissors code for the end? Otherwise there is about 40 hours of graphic design.
 
- 
+-BS if anyone else wants to sketch up a sprite we can bring them together graphically if needed.
 
 Level 2: Enemy 1 
 
@@ -91,6 +99,7 @@ To Do:
 Coding: 
 
 Add rain-like objects that the player must dodge 
+-BS see image of candy cloud in the file for ginger peep, can chop this up and make a sprite that rolls back and forth accross the top of screen and drops candy
 
 Make enemy shoot in patterns 
 
@@ -159,29 +168,26 @@ Bouncing lava – lava
  
 
  
+-----------------------------------------------------------------------------------------------------------------------------
 
- 
 
 Pause Menu (ESC) 
+ -BS completed see Pause Screen BS - will update with health bar when compleete
 
 Background with ability to continue, start again or quit 
+ -BS completed see Pause Screen BS - will update with health bar when compleete
 
-Try Again Menu (Dead) 
+Background with ability to start again or quit
+ -BS completed see Pause Screen BS - will update with health bar when compleete
 
-Background with ability to start again or quit 
+Need to work out how to calculate score (based on time/lives/class) 
 
+---------------------------------------------------------------------------------------------------------------------------------------- 
 Completion Menu (Finished Game) 
-
-Background with ability to start again or quit 
-
-Need to work out how to calculate score (based on time/lives/class) - BS 
-
- 
-
- 
-
- 
+ -BS have started but need to complete storyline and graphic set to bring it together  
+--------------------------------------------------------------------------------------------------------------------------------------
 
 Things To Consider: 
 
-What style/theme will we use for the art? 
+What style/theme will we use for the art?
+-BS can make most things fit just have to communicate anything specific asap. 
