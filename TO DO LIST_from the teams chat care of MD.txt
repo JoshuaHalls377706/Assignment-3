@@ -5,6 +5,7 @@ To Do:
 Coding: 
 
 Update player health bar design to hearts which disappear when losing health 
+-BS Do you want me to do graphic for this or does someone else want a go?
 
 Implement updated player attributes when class selected - JH 
 
@@ -13,6 +14,9 @@ Set player spawn position
 Graphics: 
 
 Player sprite 
+-BS uploaded draft see Lemon Guy Sprite_BS
+-BS Bad Guy ginger Peep uploaded peep draft for MD to comment will need to adjust size depending on what he is to do and also a death sequence that will need more work depending on his 
+ function. 
 
 Class logos 
 
@@ -21,6 +25,7 @@ Background1 (must include text detailing each class on image and an object on th
 Object Names: 
 
 Background = background1 
+-BS currently completing backgrounds will up load Saturday 5th they are cycled tiles as the moment.
 
 Player  
 
