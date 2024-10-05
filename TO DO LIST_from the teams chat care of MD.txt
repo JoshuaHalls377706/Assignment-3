@@ -1,17 +1,103 @@
+Things To Consider: 
+ASSIGNMENT REQUIREMENTS
+• Q1 We all agreed to do a tkinter
+     JBH - completed very sleek proffessional setup see Assignment 3 Q1 JBH.py
+     BS - Dorky layout of image generator
+          BS- I think this can be altered to run at the start of the game, bring in some character info and spit out some unique tokens that are distributed as bonus point collectables.
+          could be the point of the Q1 in the assignment, so I will see if I can push along my little app to make custom-generated collectables. Basically a little quiz at the start,             enter a name to use in the game messaging and generates some game images for tokens. I was thinking it could be, way to force a medicinal product for health collectables
+          set of like least favourite food/item for health damage or to become enemies with bonus for killing set of three special tokens that are bonus point tokens?? obviously, the             crazy magic bandicoot will have to match the game. This is probably beyond the scope, so I will leave it until lastish. It is messy at the moment as I didnt use a lovely grid 
+          like Joshua, I (x.y)ed things which is not ideal. If we use an updated version of mine at the start of the game and hand JBHs in as the Q1??? MD if you want to pick up the 
+          bones of my tkinter and make it more quizzy you are welcome to. What are everyones thoughts?
+     MD-
+• Q2 A game with human-like characters (hero, enemy)
+Create a simple “side-scrolling” 2D game using Pygame. The game should allow the player to control a character with the ability to run, jump, shoot projectiles. The game should have enemies, collectibles, and 3 levels. It should also have a scoring system, health, and lives.
+
+The game should include the following, but not limited to:
+
+Player class (movements, speed, jump, health, lives) - Methods
+  + Projectile Class (movements, speed, damage) – Methods
+  + Enemy Class (……………….) – Methods
+  + Collectible Class (health boost, extra life, etc.,)
+  + Level Design (3 Levels), Add boss enemy at the end.
+  + A Scoring system based on enemies defeated, and collectibles collected, health bar for players, and enemies.
+  + Implement a game over screen with the option to restart.
+  
+  Bonus: Create a dynamic camera that follows the players smoothly.
+   
+• Q3 All the answers and contributions should be recorded in GitHub till you submit the assignment. So we need to be thrashing this notes page
+
+-MD What style/theme will we use for the art?
+-BS can make most things fit just have to communicate anything specific asap. 
+
+-BS We need to meet to talk about the gameplay, what you have here MD is great but a lot of graphic work. I think we need to be strategic on using graphics, see notes at GRAPHICS
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------GRAPHICS-------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Player sprite 
+-BS uploaded draft see Lemon Guy Sprite_BS waiting for feedback from MD
+-JBH Happy with lemon guy
+-MD
+- BS working on death scene, just bursts into a yellow puddle... also want to make a joke about yellow rain somewhere, maybe just add rain in a level and he can be like .. I hope thats rain ...
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Enemy general, need to discuss how many we need 
+-BS Bad Guy ginger Peep uploaded peep draft for MD to comment will need to adjust size depending on what he is to do and also a death sequence that will need more work depending on his 
+ function.
+-JBH
+-MD
+
+-BS If we can do like mario and have like 'sorry but you lemon basket is in another castle, or what ever it is ... on each level and just match against ginger peep at the end, that would be easy for me timewise. Or could battle Ginger Peep at the end of each level...., changing his size or colour/he could get more burnt each battle. He could fly and drop lollies once, stand stationary pooping out shooting projectiles, and maybe could use Joshuas rock paper scissors code for the end? Otherwise there is about 40 hours of graphic design.
+-JBH
+-MD
+
+-BS if anyone else wants to sketch up a sprite we can bring them together graphically if needed.
+
+Need a couple of small enemy guys to wander though levels??
+-JBH
+-MD
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Weapons
+-BS If you have any sketch ideas for the weapons or anything, just upload them, and I can tidy them up/convert them to PNG, even if it's just a photo of a quick sketch.
+-BS Do they need making into sprites?
+-JBH See Bullet and Gun Class.py
+-MD
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+Background = background1..... BS-this may change using one long set eg like an early mario means each level is graphically unique and since this assinment is about the code I think that time could be spent better so just to cycle tile the background is more efficient.
+
+-BS currently completing backgrounds will up load Saturday 5th
+-They are cycled tiles as the moment... need MD to communicate on this
+- have a specific scene for the Boss scenes at the moment and can edit as needed.. see ginger peeps file, he has a ginger tree castle.
+-JBH
+-MD
+
+-BS Idea about the weather is great but will just take up too much time at this point irrelevent to the objectives.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------AUDIO-------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-BS what is best to use?? so far just using .wav or mp3 seems to not be too heavy. What should we go with.
+-BS I am going to do a squishy squashed sound on the death screen, and if anyone wants to record a theme song or weird .wav sound effects, feel free to upload to teams or make suggestions. My children are more than happy to record any requests.
+-BS There are a coulple of free 8 bit song making sites if anyone is keen on procrastinating.
+-JBH
+-MD
+--------------------------------------------------------------------------------------------------------------------------------------------
+---------GAMEPLAY-------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------
+
 Level 1: Class Select 
+-----------------------------------------------------------------------------------------------------------------------------------------
 
 To Do: 
 
 Coding: 
 
 Update player health bar design to hearts which disappear when losing health 
--BS Do you want me to do graphic for this or does someone else want a go?
+-BS Do you want me to do graphic for this or does someone else want a go? Let me know I can drop some images on here if needed.
 
 Implement updated player attributes when class selected - JH 
 
 Set player spawn position 
-
-
 
 Class logos 
 Graphics: 
@@ -24,29 +110,9 @@ Player
 
 Class1/2/3 
 
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Background = background1 
--BS currently completing backgrounds will up load Saturday 5th
--They are cycled tiles as the moment... need MD to communicate on this
-- have a specific scene for the Boss scenes .. see ginger peeps file, he has a ginger tree castle.
-
--------------------------------------------------------------------------------------------------------------------------------------
-Player sprite 
--BS uploaded draft see Lemon Guy Sprite_BS waiting for feedback from MD
-- BS working on death scene, just bursts into a yellow puddle... also want to make a joke about yellow rain somewhere, maybe just add rain in a level and he can be like .. I hope thats rain ...
- 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Enemy general, need to discuss how many we need 
--BS Bad Guy ginger Peep uploaded peep draft for MD to comment will need to adjust size depending on what he is to do and also a death sequence that will need more work depending on his 
- function. 
-
--BS If we can do like mario and have like 'sorry but you lemon basket is in another castle, or what ever it is ... on each level and just match against ginger peep at the end, that would be easy for me timewise. Or could battle Ginger Peep at the end of each level...., changing his size or colour/he could get more burnt each battle. He could fly and drop lollies once, stand stationary pooping out shooting projectiles, and maybe could use Joshuas rock paper scissors code for the end? Otherwise there is about 40 hours of graphic design.
-
--BS if anyone else wants to sketch up a sprite we can bring them together graphically if needed.
-
+-----------------------------------------------------------------------------------------------------------------------------------------
 Level 2: Enemy 1 
+-----------------------------------------------------------------------------------------------------------------------------------------
 
 A screen shot of a video game
 
@@ -83,12 +149,10 @@ Background = background2
 Enemy = enemy1 
 
 Boxes = lvl1box1/2/3 
-
  
-
- 
-
+-----------------------------------------------------------------------------------------------------------------------------------------
 Level 3: Enemy Battle 2 
+-----------------------------------------------------------------------------------------------------------------------------------------
 
 A screenshot of a video game
 
@@ -115,7 +179,6 @@ Rain-like object (match design of enemy)
 
 Background3, beginning must match end of background2, object on right side indicating the player cannot pass yet 
 
- 
 
 Object Names: 
 
@@ -125,11 +188,9 @@ Enemy = enemy2
 
 Rain-like object = falling_object 
 
- 
-
- 
-
+-----------------------------------------------------------------------------------------------------------------------------------------
 Level 4: Enemy Battle 3 (FINAL BOSS) 
+-----------------------------------------------------------------------------------------------------------------------------------------
 
 A purple rectangular object with a red area
 
@@ -165,14 +226,13 @@ Enemy = enemy3 and enemy4
 
 Bouncing lava – lava 
 
- 
-
- 
 -----------------------------------------------------------------------------------------------------------------------------
-
-
 Pause Menu (ESC) 
- -BS completed see Pause Screen BS - will update with health bar when compleete
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+-BS I noticed my game window shuts when I wiggle my mouse; I tried to code it out but gave up, it could just be me overloading my system as I had a lot open on the screen.
+
+-BS completed see Pause Screen BS - will update with health bar when compleete
 
 Background with ability to continue, start again or quit 
  -BS completed see Pause Screen BS - will update with health bar when compleete
@@ -184,10 +244,6 @@ Need to work out how to calculate score (based on time/lives/class)
 
 ---------------------------------------------------------------------------------------------------------------------------------------- 
 Completion Menu (Finished Game) 
- -BS have started but need to complete storyline and graphic set to bring it together  
+-BS have started but need to complete storyline and graphic set to bring it together  
+-JBH Have rolling credits
 --------------------------------------------------------------------------------------------------------------------------------------
-
-Things To Consider: 
-
-What style/theme will we use for the art?
--BS can make most things fit just have to communicate anything specific asap. 
