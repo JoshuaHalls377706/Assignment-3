@@ -61,7 +61,8 @@ Nothing yet but if something comes up we should keep it front and centre for eve
 - BS working on death scene, just bursts into a yellow puddle... also want to make a joke about yellow rain somewhere, maybe just add rain in a level and he can be like .. I hope thats rain ...
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Enemy general, need to discuss how many we need 
+ENEMY
+general, need to discuss how many we need 
 -BS Bad Guy ginger Peep uploaded peep draft for MD to comment will need to adjust size depending on what he is to do and also a death sequence that will need more work depending on his 
  function.
 -JBH
@@ -77,7 +78,7 @@ Need a couple of small enemy guys to wander though levels??
 -JBH
 -MD
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Weapons
+WEAPONS
 -BS If you have any sketch ideas for the weapons or anything, just upload them, and I can tidy them up/convert them to PNG, even if it's just a photo of a quick sketch.
 -BS Do they need making into sprites?
 -JBH See Bullet and Gun Class.py
@@ -103,14 +104,14 @@ Background = background1..... BS-this may change using one long set eg like an e
 -BS Idea about the weather is great but will just take up too much time at this point irrelevent to the objectives.
 
 --------------------------------------------------------------------------------------------------------------------------------------------
-Health bar 
+HEALTH BAR
 
 -MD I wasnt completely sure about the heart/health system but if you could find graphics for a coloured in heart for health and then an uncoloured heart/broken heart for a loss of life that would be epic 
  It should be easy to implement with 2 graphics for health/loss of health just replace heart with broken heart or whatever whenever player takes damage 
  and then reset after each level 
 
 -BS could do lemons or just his head with live face and dead face? ... Ill do lemony heart for now.  
-@-MD Health bar images uploaded see Health Bar Images BS
+@-MD Health bar images uploaded see Health Bar Images in OBJECTS folder
 
 -MD to code
 
