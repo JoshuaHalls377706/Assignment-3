@@ -54,11 +54,11 @@ def display_your_dead_message():
         "...there really is no easy way to say this...",
         "...You laugh in the face of danger no more!",
         "...You have kicked the bucket...",
-        "...Your pushing up daisies...",                        
+        "...You're pushing up daisies...",                        
         "",
         "",
         "...[awkward silence]...",
-        "...YOUR DEAD...",
+        "...YOU ARE DEAD...",
         "In good news you are a fictional character so you can simply begin again!",
         "...Press ESC to exit...                                                                      ...ENTER to begin again...",
     ]
