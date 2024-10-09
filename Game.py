@@ -382,6 +382,7 @@ while running:
             # Prevent moving beyond the left edge of the background
             if background3_x > 0:
                 background3_x = 0
+                camera_stopped = True
     #Camera Stop        
     if background3_x <= camera_stop2:
         moving_camera = False
