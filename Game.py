@@ -446,6 +446,7 @@ while running:
     rain.update()
     
     if level3_start:
+        if player.alive:
             if enemy2 is None:
                 enemy2 = Enemy2((850, floor1 - 120))  #Enemy position
             enemy2.update(floor1, current_time) 
@@ -496,6 +497,10 @@ while running:
                 if raindrop.rect.colliderect(player.rect):
                     player.health -= 5  # Deal damage to the player
                     raindrop.kill()  # Remove the raindrop after collision
+                    if player.health <= 0:
+                        player.alive = False
+                        player.health = 0  #Ensure health doesn't go negative
+                        current_background = background6  #Change background to background 6
                 
             for raindrop in rain:
                 screen.blit(raindrop.surf, raindrop.rect)
