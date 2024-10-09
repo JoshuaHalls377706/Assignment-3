@@ -409,6 +409,7 @@ while running:
     enemy_bullets.update()  
     
     if level2_start:
+        if player.alive:
             if enemy1 is None:
                 enemy1 = Enemy((850, floor1 - 120))  #Enemy position
             enemy1.update(floor1, current_time) 
@@ -427,6 +428,7 @@ while running:
                     #Player Dead
                     if player.health <= 0:
                         player.health = 0  #Ensure health doesn't go negative
+                        player.alive = False
                         current_background = background6
     
             #Check if the enemy's health is zero or less for next LVL
