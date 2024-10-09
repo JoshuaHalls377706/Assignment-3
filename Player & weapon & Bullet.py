@@ -117,7 +117,7 @@ class Player:
         self.weapon = weapon
         
         # Load walking sprites
-        self.sprites_walk = [pygame.image.load(f"LG_walk_side{i}.png").convert_alpha() for i in range(0, 2)]
+        self.sprites_walk = [pygame.image.load(f"Lemon Guy Sprite_BS\LG_walk_side{i}.png").convert_alpha() for i in range(0, 2)]
         
         self.current_sprite = self.sprites_walk[0]
         self.sprite_index = 0
@@ -174,8 +174,8 @@ pygame.display.set_caption('Weapon Test with Scrolling')
 clock = pygame.time.Clock()
 
 # Sample projectile and weapon initialization
-sample_projectile = Projectile("bullet.png", 10, 500, 25)
-sample_weapon = Weapon("Pistol", "Gun.png", sample_projectile, 100, 2, 0.01, 30, True)
+sample_projectile = Projectile("OBJECTS\Weapon/bullet.png", 10, 500, 25)
+sample_weapon = Weapon("Pistol", "OBJECTS\Weapon\Gun 1_empty.png", sample_projectile, 10, 1, 0.5, 30, True)
 
 # Create the player
 player = Player("Hero", 100, 3, 5, sample_weapon, "player.png")
