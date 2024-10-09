@@ -291,9 +291,12 @@ show_classes = True
 background2_x = 0
 camera_stop1 = screenwidth - new_width2
 level2_start = False
+enemy_delay = 1000 
+level2_start_time = None 
 enemy1 = None
 background3_x = 0
 level3_start = False
+level3_start_time = None 
 camera_stop2 = screenwidth - new_width3
 enemy2 = None
 background4_x = 0
@@ -351,7 +354,10 @@ while running:
     #Camera Stop        
     if background2_x <= camera_stop1:
         moving_camera = False
-        level2_start = True
+        if level2_start_time is None: 
+            level2_start_time = current_time
+        if current_time - level2_start_time >= enemy_delay:
+            level2_start = True
         
     #Background3
     if current_background == background3:
@@ -367,7 +373,10 @@ while running:
     #Camera Stop        
     if background3_x <= camera_stop2:
         moving_camera = False
-        level3_start = True
+        if level3_start_time is None: 
+            level3_start_time = current_time
+        if current_time - level3_start_time >= enemy_delay:
+            level3_start = True
                 
 #LEVEL1           
     #Check for collision with class images
@@ -463,7 +472,7 @@ while running:
 #COMPLETION
 #PAUSE
 #FAIL
-
+# 
     #Drawing
     #Lvl2 boxes
     if current_background == background2:
