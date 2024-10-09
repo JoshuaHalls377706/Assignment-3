@@ -70,8 +70,11 @@ class Player(pygame.sprite.Sprite):
         self.health = 100  
         self.alive = True
         self.facing_right = True
+        self.last_jump_time = 0
+        self.jump_cooldown = 400
 
     def update(self, pressed_keys):
+        current_time = pygame.time.get_ticks()
         self.velocity_y += self.gravity
         self.rect.y += self.velocity_y
         if self.health <= 0:
@@ -83,11 +86,12 @@ class Player(pygame.sprite.Sprite):
             self.velocity_y = 0
                     
         #Movement controls
+        if pressed_keys[K_UP] and (current_time - self.last_jump_time > self.jump_cooldown):
+            self.velocity_y = self.jump_strength
+            self.last_jump_time = current_time 
+        if pressed_keys[K_DOWN]:
+            self.rect.move_ip(0, 2)
         if not moving_camera:
-            if pressed_keys[K_UP]:
-                self.rect.move_ip(0, -4)
-            if pressed_keys[K_DOWN]:
-                self.rect.move_ip(0, 2)
             if pressed_keys[K_LEFT]:
                 self.rect.move_ip(-1, 0)
                 self.facing_right = False
@@ -95,10 +99,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.move_ip(1, 0)           
                 self.facing_right = True
         elif camera_stopped:
-            if pressed_keys[K_UP]:
-                self.rect.move_ip(0, -4)
-            if pressed_keys[K_DOWN]:
-                self.rect.move_ip(0, 2)
             if pressed_keys[K_LEFT]:
                 self.rect.move_ip(-1, 0)
                 self.facing_right = False
@@ -106,10 +106,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.move_ip(1, 0)           
                 self.facing_right = True
         else:
-            if pressed_keys[K_UP]:
-                self.rect.move_ip(0, -4)
-            if pressed_keys[K_DOWN]:
-                self.rect.move_ip(0, 2)
             if pressed_keys[K_LEFT]:
                 self.rect.move_ip(-0, 0)
                 self.facing_right = False
