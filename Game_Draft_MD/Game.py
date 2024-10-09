@@ -66,8 +66,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect()
         self.velocity_y = 0
         self.gravity = 0.03
-        self.jump_strength = -10
-        self.health = 100  
+        self.jump_strength = -4
+        self.health = 100
         self.alive = True
         self.facing_right = True
         self.last_jump_time = 0
@@ -84,11 +84,11 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom > floor1:
             self.rect.bottom = floor1
             self.velocity_y = 0
-                    
+
         #Movement controls
         if pressed_keys[K_UP] and (current_time - self.last_jump_time > self.jump_cooldown):
             self.velocity_y = self.jump_strength
-            self.last_jump_time = current_time 
+            self.last_jump_time = current_time
         if pressed_keys[K_DOWN]:
             self.rect.move_ip(0, 2)
         if not moving_camera:
@@ -123,8 +123,8 @@ def draw_player_health_bar(surface, x, y, health):
     fill = (health / 100) * bar_width  # Calculate fill proportion
     outline_rect = pygame.Rect(x, y, bar_width, bar_height)
     fill_rect = pygame.Rect(x, y, fill, bar_height)
-    pygame.draw.rect(surface, (255, 0, 0), outline_rect)  # Red outline
-    pygame.draw.rect(surface, (0, 255, 0), fill_rect)  # Green fill
+    pygame.draw.rect(surface, (255, 0, 0), outline_rect)  #0utline
+    pygame.draw.rect(surface, (0, 255, 0), fill_rect)  #Fill
 
 #PLAYER BULLET
 class Bullet(pygame.sprite.Sprite):
@@ -159,13 +159,11 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.top < floor_y - 600 or self.rect.bottom > floor_y:
             self.direction *= -1
 
-        #Shoot bullet
         if current_time - self.last_shot_time > self.shoot_interval:
             self.shoot()
             self.last_shot_time = current_time
 
     def shoot(self):
-        #Create an enemy bullet and add it to the bullet group
         enemy_bullet = EnemyBullet(self.rect.center)
         enemy_bullets.add(enemy_bullet)
 
@@ -179,8 +177,8 @@ def draw_health_bar(surface, x, y, health):
     fill = (health / 100) * bar_width  #Calculate fill proportion
     outline_rect = pygame.Rect(x, y, bar_width, bar_height)
     fill_rect = pygame.Rect(x, y, fill, bar_height)
-    pygame.draw.rect(surface, (255, 0, 0), outline_rect)  #Red outline
-    pygame.draw.rect(surface, (0, 255, 0), fill_rect)  #Green fill
+    pygame.draw.rect(surface, (255, 0, 0), outline_rect)  #Outline
+    pygame.draw.rect(surface, (0, 255, 0), fill_rect)  #Fill
 
 #ENEMY1 BULLET
 class EnemyBullet(pygame.sprite.Sprite):
@@ -207,13 +205,11 @@ class Enemy2(pygame.sprite.Sprite):
         self.last_shot_time = 0
         self.shoot_interval = 1000  
 
-        #Shoot bullet
         if current_time - self.last_shot_time > self.shoot_interval:
             self.shoot()
             self.last_shot_time = current_time
 
     def shoot(self):
-        #Create an enemy bullet and add it to the bullet group
         enemy_bullet = EnemyBullet(self.rect.center)
         enemy_bullets.add(enemy_bullet)
 
@@ -227,8 +223,8 @@ def draw_health_bar(surface, x, y, health):
     fill = (health / 100) * bar_width  # Calculate fill proportion
     outline_rect = pygame.Rect(x, y, bar_width, bar_height)
     fill_rect = pygame.Rect(x, y, fill, bar_height)
-    pygame.draw.rect(surface, (255, 0, 0), outline_rect)  # Red outline
-    pygame.draw.rect(surface, (0, 255, 0), fill_rect)  # Green fill
+    pygame.draw.rect(surface, (255, 0, 0), outline_rect)  #Outline
+    pygame.draw.rect(surface, (0, 255, 0), fill_rect)  #Fill
 
 #ENEMY2 BULLET
 class EnemyBullet(pygame.sprite.Sprite):
@@ -293,6 +289,11 @@ lvl2_tall_boxes = [lvl2box1_col, lvl2box3_col]
 #Create player
 player = Player()
 
+#Sprite groups
+bullets = pygame.sprite.Group()
+enemy_bullets = pygame.sprite.Group()
+rain = pygame.sprite.Group()
+
 #Game state
 current_background = background1
 floor1 = screenheight - 74
@@ -311,11 +312,6 @@ level3_start_time = None
 camera_stop2 = screenwidth - new_width3
 enemy2 = None
 background4_x = 0
-
-#Sprite groups
-bullets = pygame.sprite.Group()
-enemy_bullets = pygame.sprite.Group()
-rain = pygame.sprite.Group()
 
 #GAME LOOP
 running = True
@@ -337,28 +333,29 @@ while running:
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
     
+    #Draw Backgrounds
     if current_background == background1:
-        screen.blit(background1, (0, 0))  # Draw background1 for level 1
+        screen.blit(background1, (0, 0)) 
     elif current_background == background2:
-        screen.blit(background2, (background2_x, 0))  # Draw background2
+        screen.blit(background2, (background2_x, 0)) 
     elif current_background == background3:
-        screen.blit(background3, (background3_x, 0))  # Draw background3
+        screen.blit(background3, (background3_x, 0)) 
     elif current_background == background4:
-        screen.blit(background4, (background4_x, 0))  # Draw background4
+        screen.blit(background4, (background4_x, 0)) 
     elif current_background == background6:
-        screen.blit(background6, (0, 0))  # Draw background1 for level 1
+        screen.blit(background6, (0, 0))  
 
     #Camera Movement
     #Background2
     if current_background == background2:
         if pressed_keys[K_RIGHT] and moving_camera == True:
-            background2_x -= 5  # Move background left
+            background2_x -= 5  #Move background left
             camera_stopped = False
             if background2_x < screenwidth - new_width2:
                 background2_x = screenwidth - new_width2
         if pressed_keys[K_LEFT] and moving_camera == True:
             background2_x += 5  # Move background right
-            # Prevent moving beyond the left edge of the background
+            #Prevent moving beyond the left edge of the background
             if background2_x > 0:
                 background2_x = 0
                 camera_stopped = True
@@ -374,12 +371,12 @@ while running:
     #Background3
     if current_background == background3:
         if pressed_keys[K_RIGHT] and moving_camera == True:
-            background3_x -= 5  # Move background left
+            background3_x -= 5  #Move background left
             if background3_x < screenwidth - new_width3:
                 background3_x = screenwidth - new_width3
         if pressed_keys[K_LEFT] and moving_camera == True:
-            background3_x += 5  # Move background right
-            # Prevent moving beyond the left edge of the background
+            background3_x += 5  #Move background right
+            #Prevent moving beyond the left edge of the background
             if background3_x > 0:
                 background3_x = 0
                 camera_stopped = True
@@ -503,7 +500,6 @@ while running:
                 
             for raindrop in rain:
                 screen.blit(raindrop.surf, raindrop.rect)
-            
 #LEVEL4
 
 #COMPLETION
@@ -534,7 +530,7 @@ while running:
     #Player's health bar
     draw_player_health_bar(screen, 10, screenheight - 30, player.health)
 
-    #Draw Classes
+    #Classes
     if show_classes:
         screen.blit(class_image1, class1_col.topleft)
         screen.blit(class_image2, class2_col.topleft)
@@ -544,7 +540,7 @@ while running:
     for bullet in bullets:
         screen.blit(bullet.surf, bullet.rect)
         
-    # Draw enemy bullets
+    #Enemy bullets
     for enemy_bullet in enemy_bullets:
         screen.blit(enemy_bullet.surf, enemy_bullet.rect)
 
