@@ -1,5 +1,6 @@
 #Import libraries
 import pygame
+import random
 
 #Initialize pygame
 pygame.init()
@@ -247,6 +248,20 @@ class EnemyBullet(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.kill()
             
+#Rain
+class Rain(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        super(Rain, self).__init__()
+        self.surf = pygame.image.load('rain.png').convert_alpha()
+        self.surf = pygame.transform.scale(self.surf, (20, 10))
+        self.rect = self.surf.get_rect(center=pos)
+        self.speed = 1
+        
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top > floor1:
+            self.kill()
+            
 #Classes
 #Load images
 class_image1 = pygame.image.load('class1.png').convert_alpha()
@@ -304,6 +319,7 @@ background4_x = 0
 #Sprite groups
 bullets = pygame.sprite.Group()
 enemy_bullets = pygame.sprite.Group()
+rain = pygame.sprite.Group()
 
 #GAME LOOP
 running = True
@@ -427,6 +443,8 @@ while running:
                 draw_health_bar(screen, 10, 10, enemy1.health)
                 screen.blit(enemy1.surf, enemy1.rect)
 #LEVEL3
+    rain.update()
+    
     if level3_start:
             if enemy2 is None:
                 enemy2 = Enemy2((850, floor1 - 120))  #Enemy position
@@ -467,12 +485,33 @@ while running:
             if enemy2:
                 draw_health_bar(screen, 10, 10, enemy2.health)
                 screen.blit(enemy2.surf, enemy2.rect)
+                
+            max_raindrops = 5
+            if len(rain) < max_raindrops:    
+                if random.randint(0, 100) <1:  # Adjust the chance of rain
+                    raindrop = Rain((random.randint(0, screenwidth), 0))
+                    rain.add(raindrop)
+                
+            for raindrop in rain:
+                if raindrop.rect.colliderect(player.rect):
+                    player.health -= 5  # Deal damage to the player
+                    raindrop.kill()  # Remove the raindrop after collision
+                
+            for raindrop in rain:
+                screen.blit(raindrop.surf, raindrop.rect)
+            
 #LEVEL4
 
 #COMPLETION
 #PAUSE
 #FAIL
-# 
+
+
+
+    #Update bullets
+    bullets.update()
+    enemy_bullets.update()
+    
     #Drawing
     #Lvl2 boxes
     if current_background == background2:
@@ -504,15 +543,7 @@ while running:
     # Draw enemy bullets
     for enemy_bullet in enemy_bullets:
         screen.blit(enemy_bullet.surf, enemy_bullet.rect)
-        
-    #Update bullets
-    bullets.update()
-    enemy_bullets.update()
 
     pygame.display.flip()
 
 pygame.quit()
-
-
-#NEED TO ADD DELAY TO SPAWN OF ENEMY1
-#CREATE DELAY VARIABLE AND COMBINE IT WITH LEVEL2START 
