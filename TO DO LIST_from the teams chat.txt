@@ -31,13 +31,8 @@ Player class (movements, speed, jump, health, lives) - Methods
    
 • Q3 All the answers and contributions should be recorded in GitHub till you submit the assignment. So we need to be thrashing this notes page
 
--MD What style/theme will we use for the art?
--BS can make most things fit just have to communicate anything specific asap. 
-
--BS We need to meet to talk about the gameplay, what you have here MD is great but a lot of graphic work. I think we need to be strategic on using graphics, see notes at GRAPHICS
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
----------GURGENT BUGS THAT NEED EXTERMINATION-------------------------------------------------------------------------------------------
+---------URGENT BUGS THAT NEED EXTERMINATION-------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 Nothing yet but if something comes up we should keep it front and centre for everyone to get onto ASAP! Or just your current mission...
 
@@ -45,7 +40,7 @@ Nothing yet but if something comes up we should keep it front and centre for eve
 
 -MD
 
--BS Finishing Level Background Tiles trying to figure out dynamic camera
+-BS Working on crate as object and bringing together opening sequence
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------GURGENT BUGS THAT NEED EXTERMINATION-------------------------------------------------------------------------------------------
@@ -55,10 +50,10 @@ Nothing yet but if something comes up we should keep it front and centre for eve
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------GRAPHICS-------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Player sprite 
--BS uploaded draft see Lemon Guy Sprite_BS waiting for feedback from MD
--JBH Happy with lemon guy
--MD
-- BS working on death scene, just bursts into a yellow puddle... also want to make a joke about yellow rain somewhere, maybe just add rain in a level and he can be like .. I hope thats rain ...
+
+-BS bringing together opening and flow into backgrounds
+-JBH 
+-MD the graphics are in the objects folder for you to use for the health as you requested
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ENEMY
@@ -79,17 +74,19 @@ Need a couple of small enemy guys to wander though levels??
 -MD
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 WEAPONS
--BS If you have any sketch ideas for the weapons or anything, just upload them, and I can tidy them up/convert them to PNG, even if it's just a photo of a quick sketch.
--BS Do they need making into sprites?
--JBH See Bullet and Gun Class.py
+
+-BS Images uploaded hit me up if you need anymore
+-JBH See Bullet and Gun Class.py - combining lemonguy sprite with weapons and functions
 -MD
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 OBJECTS
 - see folder OBJECTS for uploaded images
-- see BS Q1 for custom tokens idea
+
 - BS uploaded images for box/crate for jumping on smashing to reveal objects
 - BS uploaded image for lives (just a  little lemon guy head
+- BS uploaded armory
+- BS working on objectifiying the crate ... not in a disrespectfull way ... 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
 Background = background1..... BS-this may change using one long set eg like an early mario means each level is graphically unique and since this assinment is about the code I think that time could be spent better so just to cycle tile the background is more efficient.
@@ -101,8 +98,6 @@ Background = background1..... BS-this may change using one long set eg like an e
 -JBH
 -MD
 
--BS Idea about the weather is great but will just take up too much time at this point irrelevent to the objectives.
-
 --------------------------------------------------------------------------------------------------------------------------------------------
 HEALTH BAR
 
@@ -110,7 +105,6 @@ HEALTH BAR
  It should be easy to implement with 2 graphics for health/loss of health just replace heart with broken heart or whatever whenever player takes damage 
  and then reset after each level 
 
--BS could do lemons or just his head with live face and dead face? ... Ill do lemony heart for now.  
 @-MD Health bar images uploaded see Health Bar Images in OBJECTS folder
 
 -MD to code
@@ -132,13 +126,10 @@ HEALTH BAR
 
     NEED WORK
 
-
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---------AUDIO-------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--BS what is best to use?? so far just using .wav or mp3 seems to not be too heavy. What should we go with.
--BS I am going to do a squishy squashed sound on the death screen, and if anyone wants to record a theme song or weird .wav sound effects, feel free to upload to teams or make suggestions. My children are more than happy to record any requests.
--BS There are a coulple of free 8 bit song making sites if anyone is keen on procrastinating.
+-BS using both mp3 and wav
 -JBH
 -MD
 --------------------------------------------------------------------------------------------------------------------------------------------
@@ -307,5 +298,5 @@ Need to work out how to calculate score (based on time/lives/class)
 ---------------------------------------------------------------------------------------------------------------------------------------- 
 Completion Menu (Finished Game) 
 -BS have started but need to complete storyline and graphic set to bring it together  
--JBH Have rolling credits
+-JBH Have rolling credits might not have for this
 --------------------------------------------------------------------------------------------------------------------------------------
