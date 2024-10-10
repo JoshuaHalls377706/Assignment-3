@@ -41,9 +41,18 @@ footstep_sound.set_volume(0.05)  # Set to % volume
 # Font for the warning message
 font = pygame.font.SysFont(None, 30)
 
+
+#----------------------------------------------------------------------------------------------------------------
+# Object crate
+#----------------------------------------------------------------------------------------------------------------
+#get crate to be jumped on 
+#get crate to explode animate
+
 #----------------------------------------------------------------------------------------------------------------
 # Game Sprite_The Hero_Lemon Guy
 #----------------------------------------------------------------------------------------------------------------
+
+#lemon guy needs to jump
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -85,6 +94,10 @@ last_footstep_time = 0  # Initialize last footstep sound time
 
 # Initialize the moving variable globally
 moving = False
+#------------------------------------------------------------------------------------------------------------------------------------------------
+def crate_animate
+
+def crate as object
 
 #----------------------------------------------------------------------------------------------------------------
 # Main game loop
