@@ -286,6 +286,22 @@ lvl2box3_background3 = (640, 477)
 #Combined Variable
 lvl2_tall_boxes = [lvl2box1_col, lvl2box3_col]
 
+#LVL4 Boxes
+#Load images
+lvl4box1 = pygame.image.load('lvl2box1.png').convert_alpha()
+lvl4box1 = pygame.transform.scale(lvl4box1, (110, 35))
+lvl4box2 = pygame.image.load('lvl2box1.png').convert_alpha()
+lvl4box2 = pygame.transform.scale(lvl4box2, (110, 35))
+lvl4box3 = pygame.image.load('lvl2box1.png').convert_alpha()
+lvl4box3 = pygame.transform.scale(lvl4box3, (110, 35))
+lvl4box4 = pygame.image.load('lvl2box1.png').convert_alpha()
+lvl4box4 = pygame.transform.scale(lvl4box4, (110, 35))
+#Collision detection
+lvl4box1_col = lvl4box1.get_rect(topleft=(120, 477))
+lvl4box2_col = lvl4box2.get_rect(topleft=(300, 547))
+lvl4box3_col = lvl4box3.get_rect(topleft=(480, 477))
+lvl4box4_col = lvl4box4.get_rect(topleft=(680, 477))
+
 #Create player
 player = Player()
 
@@ -522,6 +538,11 @@ while running:
         screen.blit(lvl2box1, (lvl2box1_background3[0] + background3_x, lvl2box1_background3[1])) 
         screen.blit(lvl2box2, (lvl2box2_background3[0] + background3_x, lvl2box2_background3[1]))
         screen.blit(lvl2box3, (lvl2box3_background3[0] + background3_x, lvl2box3_background3[1]))
+    elif current_background == background4:
+        screen.blit(lvl4box1, (lvl4box1_col.x + background4_x, lvl4box1_col.y)) 
+        screen.blit(lvl4box2, (lvl4box2_col.x + background4_x, lvl4box2_col.y))
+        screen.blit(lvl4box3, (lvl4box3_col.x + background4_x, lvl4box3_col.y))
+        screen.blit(lvl4box4, (lvl4box4_col.x + background4_x, lvl4box4_col.y))
     
     #Player if alive
     if player.alive:
