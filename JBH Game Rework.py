@@ -473,7 +473,7 @@ class GameManager:
             Effect_space(2700, GL, 500, 50, (1,1,1), Damage_player),
             Effect_space(3600, GL, 700, 50, (1,1,1), Damage_player)
         ]
-        enemies = [Enemy(50, 5, 500,Starting_projectile,(1200, GL-100), "enemy1.png")]
+        enemies = []
         print("Level 2 loaded.")
 
     def check_level_2_conditions(self):
