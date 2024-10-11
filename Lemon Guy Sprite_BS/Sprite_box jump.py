@@ -27,14 +27,12 @@ background_image = pygame.image.load("background2.jpg")
 background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale it to fit the screen
 
 #----------------------------------------------------------------------------------------------------------------
-# Define crate animation speed and timer
+# CLASS- Object -Crate
 #----------------------------------------------------------------------------------------------------------------
-crate_animation_speed = 0.1  # Controls how fast the crate breaks
-STAND_TIME_BEFORE_ANIMATING = 5000  # 5 seconds in milliseconds
 
-#----------------------------------------------------------------------------------------------------------------
-# Game Object broken crate class definition
-#----------------------------------------------------------------------------------------------------------------
+# Define crate animation speed and timer
+crate_animation_speed = 0.1 
+STAND_TIME_BEFORE_ANIMATING = 1000 #adjust time for crate brake after landing on 
 
 class Crate(pygame.sprite.Sprite):
     def __init__(crateobject, pos_x, pos_y):
@@ -46,33 +44,59 @@ class Crate(pygame.sprite.Sprite):
         crateobject.current_sprite = 0
         crateobject.image = crateobject.idle_sprite
         crateobject.rect = crateobject.image.get_rect()
+        # Shrink the collision boundary by 10 pixels (5 pixels on each side) didnt work take out??????
+        crateobject.rect.inflate_ip(-100, -100)  # Reduce width and height by 10 pixels   #helps with player collision not to reset timer on box break---------------------------------
         crateobject.rect.topleft = [pos_x, pos_y]
 
-        # States
+        # States these are the default settings for the crate states
         crateobject.player_on_crate = False  # Whether the player is currently on the crate
-        crateobject.arming = False  # Whether the crate is "armed" and ready to explode
+        crateobject.arming = False  # Whether the crate is "armed" and ready to break
         crateobject.broken = False  # Whether the crate is in the broken state
         crateobject.broke_done = False  # Whether the broken animation has finished
+        crateobject.start_time_on_crate = None  # Timer for how long the player stands on the crate
 
-        # Timer for how long the player stands on the crate
-        crateobject.start_time_on_crate = None  # Initialize as None
-
-    def update(self):
+    def update(crate):
         # Handle broken animation
-        if self.broken and not self.broke_done:
+        if crate.broken and not crate.broke_done:
             print("Crate is breaking...")  # Debugging print statement
-            self.current_sprite += crate_animation_speed  # Advance through the broken frames
-            if int(self.current_sprite) >= len(self.broke_sprites):
-                self.broke_done = True  # Broken animation complete
+            crate.current_sprite += crate_animation_speed  # Advance through the broken frames
+            if int(crate.current_sprite) >= len(crate.broke_sprites):
+                crate.broke_done = True  # Broken animation complete
                 print("Crate has fully broken.")  # Debugging print statement
             else:
-                self.image = self.broke_sprites[int(self.current_sprite)]
+                crate.image = crate.broke_sprites[int(crate.current_sprite)]
         # If the crate is armed but not yet broken, keep idle sprite
-        elif self.arming:
-            self.image = self.idle_sprite  # Crate looks idle but is "armed"
+        elif crate.arming:
+            crate.image = crate.idle_sprite  # Crate looks idle but is "armed"
+
+def check_player_crate_collision(player, crate):
+
+    if player.rect.colliderect(crate.rect) and not crate.broken:
+        if player.velocity_y > 0 and player.rect.bottom <= crate.rect.top + 10:
+            player.rect.bottom = crate.rect.top  # Position player on top of the crate
+            player.velocity_y = 0  # Stop downward velocity
+            player.is_jumping = False  # Player has landed on the crate
+            player.ground_level = crate.rect.top  # Temporarily update ground level to crate's top
+            crate.player_on_crate = True  # Track that the player is on the crat
+            if crate.start_time_on_crate is None:
+                crate.start_time_on_crate = pygame.time.get_ticks()
+                print("Player landed on crate, timer started.")  # Debugging print statement
+
+            # Check if the player has stood on the crate long enough
+            elapsed_time = pygame.time.get_ticks() - crate.start_time_on_crate
+            if elapsed_time >= STAND_TIME_BEFORE_ANIMATING and not crate.broken:
+                print(f"Crate breaking after {elapsed_time / 1000} seconds.")  # Debugging print statement
+                crate.arming = True  # Start crate breaking process
+                crate.broken = True  # Set crate to broken
+
+    # If player jumps off the crate
+    elif crate.player_on_crate and not player.rect.colliderect(crate.rect):
+        crate.player_on_crate = False  # Player is no longer on crate
+
+        player.ground_level = ORIGINAL_GROUND_LEVEL  # Reset ground level to original value after jumping off
 
 #----------------------------------------------------------------------------------------------------------------
-# Game Sprite_The Hero_Lemon Guy
+# CLASS Player - Game Sprite_The Hero_Lemon Guy
 #----------------------------------------------------------------------------------------------------------------
 
 sprite_speed = 5  # Adjust this number to change the player's movement speed
@@ -137,34 +161,9 @@ class Player(pygame.sprite.Sprite):
 # Initialize player using the original ground level
 player = Player(200, ORIGINAL_GROUND_LEVEL) 
 
-def check_player_crate_collision(player, crate):
-    # If player lands on crate
-    if player.rect.colliderect(crate.rect) and not crate.broken:
-        if player.velocity_y > 0 and player.rect.bottom <= crate.rect.top + 10:
-            player.rect.bottom = crate.rect.top  # Position player on top of the crate
-            player.velocity_y = 0  # Stop downward velocity
-            player.is_jumping = False  # Player has landed on the crate
-            player.ground_level = crate.rect.top  # Temporarily update ground level to crate's top
-            crate.player_on_crate = True  # Track that the player is on the crate
 
-            # Start the timer when the player lands on the crate
-            if crate.start_time_on_crate is None:
-                crate.start_time_on_crate = pygame.time.get_ticks()
-                print("Player landed on crate, timer started.")  # Debugging print statement
 
-            # Check if the player has stood on the crate long enough
-            elapsed_time = pygame.time.get_ticks() - crate.start_time_on_crate
-            if elapsed_time >= STAND_TIME_BEFORE_ANIMATING and not crate.broken:
-                print(f"Crate breaking after {elapsed_time/1000} seconds.")  # Debugging print statement
-                crate.arming = True  # Start crate breaking process
-                crate.broken = True  # Set crate to broken
 
-    # If player jumps off the crate
-    elif crate.player_on_crate and not player.rect.colliderect(crate.rect):
-        crate.player_on_crate = False  # Player is no longer on crate
-        crate.start_time_on_crate = None  # Reset standing time
-        player.ground_level = ORIGINAL_GROUND_LEVEL  # Reset ground level to original value after jumping off
-        print("Player jumped off crate, timer reset.")  # Debugging print statement
 
 # Initialize the game loop
 run = True
@@ -179,7 +178,7 @@ crate = Crate(450, 525)  # Crate at position
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 all_sprites.add(crate)
-
+#----------------------------------------------------------------------------------------------------------------------------------------
 # Main game loop
 while run:
     for event in pygame.event.get():
