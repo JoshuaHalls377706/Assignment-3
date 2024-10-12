@@ -2,6 +2,16 @@ import pygame
 import math
 import random
 
+import os
+#--------------------------------------------------------------------------
+# FILE MANAGEMENT
+#--------------------------------------------------------------------------
+# Set the working directory to the folder where the script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+#--------------------------------------------------------------------------
+
 # -- Global Variables --
 GL = 600  # Ground level
 MAP_WIDTH = 1200
@@ -134,75 +144,108 @@ class Player:
         self.speed = speed
         self.speed_boost = 1
         self.weapon = weapon
-        self.sprite = pygame.image.load(sprite).convert_alpha()
-        self.sprite = pygame.transform.scale(self.sprite, (60, 120))
-        self.position = pygame.Vector2(100, GL)
-        self.velocity = pygame.Vector2(0, 0)
-        self.on_ground = True
-        
-        # Special Effect - Dont change here
+
+        # Load animated sprites for player
+        self.sprites = [
+            pygame.image.load('LG_walk_side0.png'),
+            pygame.image.load('LG_walk_side1.png'),
+            pygame.image.load('LG_walk_side2.png')
+        ]
+        # Pre-flip sprites for left-facing direction
+        self.flipped_sprites = [pygame.transform.flip(sprite, True, False) for sprite in self.sprites]
+
+        self.idle_sprite = pygame.image.load('LG_walk_side2.png')
+        self.flipped_idle_sprite = pygame.transform.flip(self.idle_sprite, True, False)
+
+        # Set initial sprite and position
+        self.current_sprite = 0
+        self.image = self.sprites[self.current_sprite]
+        self.rect = self.image.get_rect()
+        self.position = pygame.Vector2(100, GL)  # Set initial position
+        self.velocity_y = 0
+        self.is_jumping = False
+        self.facing_right = True
+        self.sprite_speed = speed
+
+        # Gravity settings
+        self.gravity = 1
+        self.jump_speed = -20  # Jump height
+
+        # Special Effect - Don't change here
         self.effect = effect
         self.effect_cooldown = 1
         self.last_effect_active = 0
         self.effect_active = False
 
     def move(self, direction):
-        self.position += direction * self.speed * self.speed_boost
+        # Handle horizontal movement and sprite animation
+        moving = False
+        if direction.x != 0:
+            self.position.x += direction.x * self.sprite_speed * self.speed_boost
+            moving = True
+            if direction.x > 0:  # Moving right
+                if not self.facing_right:
+                    self.facing_right = True
+                    self.current_sprite = 0  # Reset sprite animation
+                self.image = self.sprites[int(self.current_sprite)]
+            else:  # Moving left
+                if self.facing_right:
+                    self.facing_right = False
+                    self.current_sprite = 0  # Reset sprite animation
+                self.image = self.flipped_sprites[int(self.current_sprite)]
+
+        # Animate the player when moving
+        if moving:
+            self.current_sprite += 0.1
+            if self.current_sprite >= len(self.sprites):
+                self.current_sprite = 0
+        else:
+            # Set idle sprite based on facing direction
+            if self.facing_right:
+                self.image = self.idle_sprite
+            else:
+                self.image = self.flipped_idle_sprite
 
     def jump(self):
-        if self.on_ground:
-            self.velocity.y = -15  # Initial jump velocity
-            self.on_ground = False  # Player is now in the air
+        # Handle jumping logic
+        if not self.is_jumping:
+            self.is_jumping = True
+            self.velocity_y = self.jump_speed
 
     def apply_gravity(self):
-        # Apply gravity to vertical velocity
-        self.velocity.y += GRAVITY
-
-        # Temporarily update the position based on the current velocity
-        new_position_y = self.position.y + self.velocity.y
-
-        keys = pygame.key.get_pressed()
+        # Apply gravity to vertical movement
+        self.velocity_y += self.gravity
+        self.position.y += self.velocity_y
 
         # Check for collision with platforms
-        if not keys[pygame.K_s]:
-            for platform in platforms:
-                if (self.position.x + (self.sprite.get_width() / 2) > platform.rect.left and
-                    self.position.x - (self.sprite.get_width() / 2) < platform.rect.right):
-                    
-                    # Check if coming from above
-                    if new_position_y >= platform.rect.top and self.position.y <= platform.rect.top:
-                        self.position.y = platform.rect.top  # Sit on top of the platform
-                        self.velocity.y = 0  # Reset vertical velocity
-                        self.on_ground = True  # Set player as grounded
-                        return  # Exit early as we've handled the collision
-
-                    # Check if coming from below
-                    elif new_position_y <= platform.rect.bottom and self.position.y >= platform.rect.bottom:
-                        self.position.y = platform.rect.top  # Sit on top of the platform
-                        return  # Exit early as we've handled the collision
-
-        # If no collision was detected, update the position
-        self.position.y = new_position_y
-
-        # Reset position if player falls below ground level
+        for platform in platforms:
+            if (self.position.x + (self.image.get_width() / 2) > platform.rect.left and
+                self.position.x - (self.image.get_width() / 2) < platform.rect.right):
+                
+                # Check if the player is falling and is above the platform
+                if self.velocity_y > 0 and self.position.y + self.image.get_height() <= platform.rect.top:
+                    if self.position.y + self.image.get_height() + self.velocity_y >= platform.rect.top:
+                        self.position.y = platform.rect.top - self.image.get_height()
+                        self.velocity_y = 0
+                        self.is_jumping = False
+                        return  # Exit once a platform collision is detected
+        
+        # Check if player lands on the ground (GL is the ground level)
         if self.position.y >= GL:
             self.position.y = GL
-            self.velocity.y = 0  # Reset vertical velocity
-            self.on_ground = True  # Player is grounded
+            self.velocity_y = 0
+            self.is_jumping = False
 
     def draw(self, surface, camera_x):
-        draw_x = self.position.x - (self.sprite.get_width() / 2) - camera_x  # Adjust for camera
-        draw_y = self.position.y - self.sprite.get_height()
-        
-        # Update weapon's position to be aligned with the player
+        # Draw the player sprite on the screen relative to the camera
+        draw_x = self.position.x - (self.image.get_width() / 2) - camera_x
+        draw_y = self.position.y - self.image.get_height()
+        surface.blit(self.image, (draw_x, draw_y))
+
+        # Draw weapon
         self.weapon.position_x = self.position.x - camera_x
-        self.weapon.position_y = self.position.y - self.sprite.get_height() / 2
-        
-        # Draw player sprite
-        surface.blit(self.sprite, (draw_x, draw_y))
-        
-        # Draw the weapon
-        self.weapon.draw(surface, pygame.mouse.get_pos())  # Assuming you want the weapon to aim at the mouse
+        self.weapon.position_y = self.position.y - self.image.get_height() / 2
+        self.weapon.draw(surface, pygame.mouse.get_pos())
 
     def take_damage(self, amount):
         self.health -= amount
@@ -211,48 +254,47 @@ class Player:
             self.respawn()
 
     def respawn(self):
-        self.health = 100
+        self.health = self.maxhealth
         self.position = pygame.Vector2(100, 300)
-        self.on_ground = True
+        self.is_jumping = False
 
     def draw_Stats(self, surface):
-        
-        #set up font
+        # Drawing player stats (same as original)
         my_font = pygame.font.SysFont('Comic Sans MS', 20)
         x = 10
         y = 10
         y_spacer = 30
 
         # Class Name and weapon
-        text_Name = my_font.render(f'Class: {player.name}, Weapon: {player.weapon.name}', True, (0,0,0))
+        text_Name = my_font.render(f'Class: {self.name}, Weapon: {self.weapon.name}', True, (0, 0, 0))
         surface.blit(text_Name, (x, y))
 
         # Remaining Lives
-        text_Lives = my_font.render(f'Lives Remaining: {player.lives}', True, (0,0,0))
-        surface.blit(text_Lives, (x, y+y_spacer))
+        text_Lives = my_font.render(f'Lives Remaining: {self.lives}', True, (0, 0, 0))
+        surface.blit(text_Lives, (x, y + y_spacer))
 
         # Health Bar
         health_bar_length = 150
         health_ratio = self.health / self.maxhealth
-        pygame.draw.rect(surface, (255, 0, 0), (x, y+y_spacer*2, health_bar_length, 30))  # Background
-        pygame.draw.rect(surface, (0, 255, 0), (x, y+y_spacer*2, health_bar_length * health_ratio, 30))  # Health
+        pygame.draw.rect(surface, (255, 0, 0), (x, y + y_spacer * 2, health_bar_length, 30))  # Background
+        pygame.draw.rect(surface, (0, 255, 0), (x, y + y_spacer * 2, health_bar_length * health_ratio, 30))  # Health
 
-        text_Health = my_font.render(f'HP: {self.health}/{self.maxhealth}', True, (0,0,0))
-        surface.blit(text_Health, (x, y+y_spacer*2))
+        text_Health = my_font.render(f'HP: {self.health}/{self.maxhealth}', True, (0, 0, 0))
+        surface.blit(text_Health, (x, y + y_spacer * 2))
 
         # Ammo Bar
-        if player.weapon:
-            AmmoMax = player.weapon.mag_size
-            AmmoCurrent = player.weapon.ammo
-            
+        if self.weapon:
+            AmmoMax = self.weapon.mag_size
+            AmmoCurrent = self.weapon.ammo
+
             # Render the text
-            if not player.weapon.reloading:
-                text_Ammo = my_font.render(f'Bullets: {AmmoCurrent}/{AmmoMax}', True, (0,0,0))
+            if not self.weapon.reloading:
+                text_Ammo = my_font.render(f'Bullets: {AmmoCurrent}/{AmmoMax}', True, (0, 0, 0))
             else:
-                text_Ammo = my_font.render('Reloading...', True, (0,0,0))
-            
+                text_Ammo = my_font.render('Reloading...', True, (0, 0, 0))
+
             # Draw text on surface at the specified coordinates
-            surface.blit(text_Ammo, (x, y+y_spacer*3))
+            surface.blit(text_Ammo, (x, y + y_spacer * 3))
 
     def Player_effect(self, player):
         self.effect(player)
@@ -285,6 +327,7 @@ class Effect_box:
         self.used = used
         self.color = color
 
+
     def draw(self, surface, camera_x):
         if not self.used:
             adjusted_rect = self.rect.move(-camera_x, 0)
@@ -292,7 +335,7 @@ class Effect_box:
 
     def interact(self, player):
         if not self.used:
-            player_rect = player.sprite.get_rect(topleft=(player.position.x - player.sprite.get_width()/2, player.position.y - player.sprite.get_height() + 1))
+            player_rect = player.image.get_rect(topleft=(player.position.x - player.image.get_width()/2, player.position.y - player.image.get_height() + 1))
             # Check if the player rectangle collides with the effect box
             if self.rect.colliderect(player_rect):
                 self.effect(player)  # Apply the effect when interacted with
@@ -309,7 +352,7 @@ class Effect_space:
         pygame.draw.rect(surface, self.color, adjusted_rect)  # Gold color for the box
 
     def interact(self, player):
-        player_rect = player.sprite.get_rect(topleft=(player.position.x, player.position.y - player.sprite.get_height() + 1))
+        player_rect = player.image.get_rect(topleft=(player.position.x, player.position.y - player.image.get_height() + 1))
         # Check if the player rectangle collides with the effect box
         if self.rect.colliderect(player_rect):
             self.effect(player)  # Apply the effect when interacted with
@@ -387,6 +430,25 @@ class Enemy:
     def get_health_percentage(self):
         return self.health / self.max_health  # Returns a value between 0 and 1
 
+#--------------------- BS working----------------------------------------------------------------
+class Collectable:
+    def __init__(self, x, y, width, height, sprite, value=1):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.sprite = pygame.image.load(sprite).convert_alpha()
+        self.value = value
+        self.collected = False
+
+    def draw(self, surface, camera_x):
+        if not self.collected:
+            adjusted_rect = self.rect.move(-camera_x, 0)
+            surface.blit(self.sprite, adjusted_rect)
+
+    def interact(self, player, score):
+        player_rect = player.image.get_rect(topleft=(player.position.x - player.image.get_width() / 2, player.position.y - player.image.get_height() + 1))
+        if self.rect.colliderect(player_rect) and not self.collected:
+            self.collected = True
+            score.increment(self.value)
+#--------------------- BS working----------------------------------------------------------------
 class GameManager:
     def __init__(self):
         self.levels = {
@@ -439,11 +501,17 @@ class GameManager:
         projectiles = []
         platforms = []
         Effect_boxes = [
-            Effect_box(300, GL - 150, 50, (255, 0, 0), class_change_Assasian),
+            Effect_box(300, GL - 150, 50, (255, 0, 0), class_change_Assasin),
             Effect_box(600, GL - 150, 50, (0, 255, 0), class_change_Tank),
             Effect_box(900, GL - 150, 50, (0, 0, 255), class_change_Soldier)
         ]
         enemies = []
+        #--------------------------bsworking----------------------------------------------------------
+        collectables = [
+            Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
+            Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
+        ]
+#--------------------------bsworking----------------------------------------------------------
         print("Level 1 loaded.")
 
     def check_level_1_conditions(self):
@@ -474,6 +542,12 @@ class GameManager:
             Effect_space(3600, GL, 700, 50, (1,1,1), Damage_player)
         ]
         enemies = []
+#--------------------------bsworking----------------------------------------------------------
+        collectables = [
+            Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
+            Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
+        ]
+#--------------------------bsworking----------------------------------------------------------
         print("Level 2 loaded.")
 
     def check_level_2_conditions(self):
@@ -496,6 +570,13 @@ class GameManager:
         ]
         Effect_boxes = []
         enemies = []
+#--------------------------bsworking----------------------------------------------------------
+        collectables = [
+            Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
+            Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
+        ]
+#--------------------------bsworking----------------------------------------------------------
+
         print("Level 3 loaded.")
 
     def check_level_3_conditions(self):
@@ -534,10 +615,10 @@ def update_camera(player_pos):
     camera_x = player_pos.x - screen.get_width() // 2  # Center camera on player
     return max(0, min(camera_x, MAP_WIDTH - screen.get_width()))  # Clamp to map edges
 
-def class_change_Assasian(Player):
+def class_change_Assasin(Player):
     global Class_picked
 
-    player.name = "Assasian"
+    player.name = "Assasin"
     Player.maxhealth = 50
     player.health = Player.maxhealth
     Player.speed = 10
@@ -659,6 +740,12 @@ pygame.display.set_caption('Game Thingy mabob')
 # Set the clock
 clock = pygame.time.Clock()
 
+#Graphic initialisations
+background0_image = pygame.image.load("BG_0.png").convert()
+Class_Door0 = pygame.image.load("D0.png").convert()#--------------------------bsworking----------------------------------------------------------
+Class_Door1 = pygame.image.load("D1.png").convert()
+Class_Door2 = pygame.image.load("D2.png").convert()
+
 # Sample projectile and weapon initialization
 Starting_projectile = Projectile("bullet.png", 50, 600, 1)
 Starting_weapon = Weapon("Pistol", "Gun.png", Starting_projectile, 6, 1, 0.3, 0, True)
@@ -672,6 +759,7 @@ projectiles = []
 platforms = []
 Effect_boxes= []
 enemies = []
+collectables = []
 
 def game_loop():
     running = True
@@ -685,6 +773,10 @@ def game_loop():
         Game_Manager.progress_manager() 
 
         draw_background(screen)
+        screen.blit(background0_image, (0, 0))#initial
+        screen.blit(Class_Door0, (100, 200)) #--------------------------bsworking----------------------------------------------------------
+        screen.blit(Class_Door1, (100, 200))
+        screen.blit(Class_Door2, (100, 200))
 
         # Get mouse position
         mouse_pos = pygame.mouse.get_pos()
@@ -710,7 +802,11 @@ def game_loop():
             enemy_projectile = enemy.shoot(player.position, camera_x)
             if enemy_projectile:
                 projectiles.append(enemy_projectile)
-
+#------------------------------------------------------------------BSworking----------------------------------------------------
+        for collectable in collectables:
+            collectable.draw(screen, camera_x)
+            collectable.interact(player, score)#need to interact with JB score
+#------------------------------------------------------------------BSworking----------------------------------------------------
         # -- Handle player movement --
         keys = pygame.key.get_pressed()
         direction = pygame.Vector2(0, 0)
