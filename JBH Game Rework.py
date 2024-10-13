@@ -268,6 +268,7 @@ class Player:
             self.respawn()
 
     def respawn(self):
+        self.your_dead()
         self.health = self.maxhealth
         self.position = pygame.Vector2(100, 300)
         self.is_jumping = False
@@ -772,6 +773,126 @@ def Player_Effect_Heal(player):
         if player.effect_active and (current_time - player.last_effect_active >= Heal_duration):
             player.speed_boost = 1  # Reset to normal speed
             player.effect_active = False  # Reset the dashing flag
+
+#Respawn/Dead
+def display_your_dead_message():
+    screen.fill((0, 0, 0))  # Clear the screen
+    screen.blit(you_died_options, (0, 0))  # Blit the final death screen
+
+    # The End message split into lines
+    lines = [
+        "ATTENTION OUR DEAR HERO:",
+        "...there really is no easy way to say this...",
+        "...You laugh in the face of danger no more!",
+        "...You have kicked the bucket...",
+        "...You're pushing up daisies...",                        
+        "",
+        "",
+        "...[awkward silence]...",
+        "...YOU ARE DEAD...",
+        "In good news you are a fictional character so you can simply begin again!",
+        "...Press ESC to exit...                                                                      ...ENTER to begin again...",
+    ]
+
+    # Get the center of the screen for message text
+    screen_rect = screen.get_rect()
+
+    # Adjust text rendering (center each line)
+    total_text_height = len(lines) * 50  # Calculate total height of the text block
+    base_y = screen_rect.centery - total_text_height // 2  # Starting Y position (centered vertically)
+
+    # Render and center each line of text
+    for i, line in enumerate(lines):
+        pause_text = font.render(line, True, (41, 148, 214))  # Render the line
+        text_rect = pause_text.get_rect()  # Get the bounding rectangle of the text
+        text_rect.center = (screen_rect.centerx, base_y + i * 50)  # Center horizontally and space vertically
+        screen.blit(pause_text, text_rect)  # Display the text
+
+    pygame.display.flip()
+
+def your_dead():
+    paused = True
+    frame = 0  # Track the animation frame
+    Lastwords.play()  # Play the death sound
+    animation_done = False  # Track if the animation has finished
+
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # Press Esc to quit the game
+                    pygame.quit()
+
+                elif event.key == pygame.K_RETURN:  # Press Enter to restart the game
+                    return False  # Resume the game and restart
+
+        if not animation_done:
+            if frame < len(you_died):  # Play the animation
+                screen.fill((0, 0, 0))  # Clear the screen
+                screen.blit(you_died[frame], (0, 0))  # Display the current death frame
+                frame += 1  # Go to the next frame
+                pygame.time.delay(600)  # Control the speed of the animation
+            else:
+                animation_done = True  # End the animation
+
+        else:
+            display_your_dead_message()  # Display the final death screen
+
+        pygame.display.flip()
+
+    return False  # End the death state and resume
+
+#Pause Screen Layout
+def display_pause_message():
+    screen.fill((0, 0, 0))  # Clear the screen
+    screen.blit(pause_image, (0, 0))  # Blit it at the top-left corner
+    screen.blit(transparency_image, image_rect.topleft)  # Blit it at the top-left corner
+
+    # The pause message split into lines
+    lines = [
+        "ATTENTION OUR DEAR HERO:", #potential to add name funct at the start
+        "There is NO ESCAPE, the only way out is through!",
+        "You must take this moment to FIGHT ON!",
+        "'our hero fist pumps the air ...'",
+        "... and presses ENTER to return to the game.",
+        ".... OR ...",
+        "Press escape again to sprint away bravely...",
+        "... into the arms of shame!",
+    ]
+
+    # Get the center of the screen
+    screen_rect = screen.get_rect()
+
+    # Set the base height (e.g., 1/3rd from the top of the screen)
+    base_y = screen_rect.centery - 180  # Adjust the starting height here
+
+    # Render and center each line of text
+    for i, line in enumerate(lines):
+        pause_text = font.render(line, True, (41, 148, 214))  # Render the line
+        text_rect = pause_text.get_rect()  # Get the bounding rectangle of the text
+        text_rect.center = (screen_rect.centerx, base_y + i * 50)  # Center the text
+        screen.blit(pause_text, text_rect)  # Display the text
+    pygame.display.flip()
+
+def pause_game():
+    paused = True
+    pause_sound.play()  # Play the sound when the game is paused
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:  # Press Esc to quit the game
+                       pygame.quit()
+
+            elif event.key == pygame.K_RETURN:  # Press Enter to resume the game
+                    paused = False
+
+        display_pause_message()
+
 #---------------------------------------------------------------------------------------------------------------------------------------------
 # -- Initialize Game ---------------------------------------------------------------------------------------------------------------------------
 pygame.init()
@@ -789,6 +910,9 @@ life_sound = pygame.mixer.Sound("FreeLife.mp3")
 lempoints_sound = pygame.mixer.Sound("Lempoints.mp3")
 player_sound = pygame.mixer.Sound("Footsteps.mp3")
 crate_break_sound = pygame.mixer.Sound("Cratebreak.mp3")
+pause_sound = pygame.mixer.Sound("pause.WAV") 
+Lastwords = pygame.mixer.Sound("LGQuote_End Game.mp3")
+
 
 # Set the volume to 50% (0.5)
 theme_song.set_volume(0.8)
@@ -796,6 +920,7 @@ life_sound.set_volume(0.5)
 lempoints_sound.set_volume(0.5)
 crate_break_sound.set_volume(0.5)
 player_sound.set_volume(0.1)
+Lastwords.set_volume(5)
 
 #Loop theme tune
 theme_song.play(loops=-1)
@@ -811,6 +936,20 @@ Juicebar = pygame.image.load("M1.png").convert_alpha()
 Lives = pygame.image.load("M2.png").convert_alpha()
 LemPoints = pygame.image.load("M3.png").convert_alpha()
 
+# Load the pause screens
+pause_image = pygame.image.load('BGpause.png')
+pause_image = pygame.transform.scale(pause_image, (1200,800))  # Scale image to screen size
+transparency_image = pygame.image.load('Transparency_alpha.png')
+transparency_image = pygame.transform.scale(transparency_image, (1200,800))  # Scale image to screen size
+transparency_image.set_alpha(230)  # Set the alpha for transparency (0-255; 255 is fully opaque)
+image_rect = transparency_image.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+
+# Load the death sequence for animation
+you_died = [pygame.transform.scale(pygame.image.load(f"LG_die_{i}.png"), (1200,800)) for i in range(0, 15)]
+you_died_options = pygame.transform.scale(pygame.image.load("LG_die_15.png"), (1200,800))
+
+# Font for the warning message
+font = pygame.font.SysFont(None, 30)
 
 # Sample projectile and weapon initialization
 Starting_projectile = Projectile("bullet.png", 50, 600, 1)
@@ -835,6 +974,10 @@ def game_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
+            # Check for key press events
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # Pause the game on Esc
+                    pause_game()         
 
         # This controls what is on the map runn by global veriables
         Game_Manager.load_level()
