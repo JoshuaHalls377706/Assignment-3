@@ -3,6 +3,8 @@ import math
 import random
 
 import os
+
+from Crate import Crate, SolidCrate, check_player_crate_collision # Import the Crate classes
 #--------------------------------------------------------------------------
 # FILE MANAGEMENT
 #--------------------------------------------------------------------------
@@ -448,6 +450,20 @@ class Collectable:
         if self.rect.colliderect(player_rect) and not self.collected:
             self.collected = True
             score.increment(self.value)
+
+class Score:
+    def __init__(self):
+        self.value = 0  # Initial score
+
+    def increment(self, points):
+        self.value += points  # Increment the score by the specified number of points
+
+    def draw(self, surface):
+        font = pygame.font.SysFont('Comic Sans MS', 30)
+        score_text = font.render(f'Score: {self.value}', True, (255, 255, 255))
+        surface.blit(score_text, (10, 50))  # Draw the score at the top-left corner of the screen
+
+    
 #--------------------- BS working----------------------------------------------------------------
 class GameManager:
     def __init__(self):
@@ -493,24 +509,31 @@ class GameManager:
             return False  # Default to not completed
         else:
             return self.Gameover()
+#--------------------------------------------------------------------------------------------------LEVEL 1---BEGINNING
 
     def level_1(self):
-        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies
+        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies, collectables, crates, score
         MAP_WIDTH = 1200
         MAP_HEIGHT = 800
         projectiles = []
-        platforms = []
+        platforms = []      
         Effect_boxes = [
-            Effect_box(300, GL - 150, 50, (255, 0, 0), class_change_Assasin),
-            Effect_box(600, GL - 150, 50, (0, 255, 0), class_change_Tank),
-            Effect_box(900, GL - 150, 50, (0, 0, 255), class_change_Soldier)
+            Effect_box(300, GL - 150, 50, (255, 0, 0), class_change_Assasin),  ## can we change these to different weapon choices?
+            Effect_box(600, GL - 150, 50, (0, 255, 0), class_change_Tank),     ## can we change these to different weapon choices?
+            Effect_box(900, GL - 150, 50, (0, 0, 255), class_change_Soldier)   # can we change these to different weapon choices?
         ]
         enemies = []
         #--------------------------bsworking----------------------------------------------------------
+        crates = [
+            Crate(800, GL +200),  # Create a regular crate at (100, GL - 50)
+            SolidCrate(800, GL - 50)  # Create a solid crate at (500, GL - 50)
+        ]
+
         collectables = [
             Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
             Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
-        ]
+        ]     
+        score = Score()
 #--------------------------bsworking----------------------------------------------------------
         print("Level 1 loaded.")
 
@@ -520,9 +543,9 @@ class GameManager:
         if Class_picked:
             player.position = pygame.Vector2(100, GL)
             return True
-
+#--------------------------------------------------------------------------------------------------LEVEL 2---BEGINNING
     def level_2(self):
-        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies
+        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies, collectables, crates, score
         MAP_WIDTH = 5000
         MAP_HEIGHT = 800
         projectiles = []
@@ -541,6 +564,12 @@ class GameManager:
             Effect_space(2700, GL, 500, 50, (1,1,1), Damage_player),
             Effect_space(3600, GL, 700, 50, (1,1,1), Damage_player)
         ]
+        crates = [
+            Crate(100, GL - 50),  # Create a regular crate at (100, GL - 50)
+            SolidCrate(500, GL - 50)  # Create a solid crate at (500, GL - 50)
+        ]
+
+    
         enemies = []
 #--------------------------bsworking----------------------------------------------------------
         collectables = [
@@ -554,9 +583,9 @@ class GameManager:
         global Boss_1_done
         if Boss_1_done:
             return True
-
+#--------------------------------------------------------------------------------------------------LEVEL 3---BEGINING
     def level_3(self):
-        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies
+        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies, crates, collectables, score
         MAP_WIDTH = 5000
         MAP_HEIGHT = 800
         projectiles = []
@@ -583,6 +612,7 @@ class GameManager:
         global Boss_2_done
         if Boss_2_done:
             return True
+#--------------------------------------------------------------------------------------------------LEVEL 3---END
 
     def Gameover(self):
         player.position = pygame.Vector2(100, GL)
@@ -729,8 +759,8 @@ def Player_Effect_Heal(player):
         if player.effect_active and (current_time - player.last_effect_active >= Heal_duration):
             player.speed_boost = 1  # Reset to normal speed
             player.effect_active = False  # Reset the dashing flag
-
-# -- Initialize Game --
+#---------------------------------------------------------------------------------------------------------------------------------------------
+# -- Initialize Game ---------------------------------------------------------------------------------------------------------------------------
 pygame.init()
 pygame.font.init()
 
@@ -742,9 +772,11 @@ clock = pygame.time.Clock()
 
 #Graphic initialisations
 background0_image = pygame.image.load("BG_0.png").convert()
-Class_Door0 = pygame.image.load("D0.png").convert()#--------------------------bsworking----------------------------------------------------------
-Class_Door1 = pygame.image.load("D1.png").convert()
-Class_Door2 = pygame.image.load("D2.png").convert()
+#In Game Headings
+Ammo = pygame.image.load("M0.png").convert()#--------------------------bsworking----------------------------------------------------------
+Juice = pygame.image.load("M1.png").convert()
+Lives = pygame.image.load("M2.png").convert()
+
 
 # Sample projectile and weapon initialization
 Starting_projectile = Projectile("bullet.png", 50, 600, 1)
@@ -753,13 +785,15 @@ Starting_weapon = Weapon("Pistol", "Gun.png", Starting_projectile, 6, 1, 0.3, 0,
 # Create the player
 player = Player("No Class", 100, 3, 5, Starting_weapon, "player.png", Player_Effect_Sprint)
 
-# Initialize global projectile list, platforms and Effect_boxes
+# Initialize global projectile list, platforms and Effect_boxes-------------------------------------------------------------------INITIALISE ITEM LISTS
 Game_Manager = GameManager()
 projectiles = []
 platforms = []
 Effect_boxes= []
 enemies = []
 collectables = []
+crates = []
+
 
 def game_loop():
     running = True
@@ -772,11 +806,9 @@ def game_loop():
         Game_Manager.load_level()
         Game_Manager.progress_manager() 
 
+        #initial background - move to levels?
         draw_background(screen)
-        screen.blit(background0_image, (0, 0))#initial
-        screen.blit(Class_Door0, (100, 200)) #--------------------------bsworking----------------------------------------------------------
-        screen.blit(Class_Door1, (100, 200))
-        screen.blit(Class_Door2, (100, 200))
+        screen.blit(background0_image, (0, 0))
 
         # Get mouse position
         mouse_pos = pygame.mouse.get_pos()
@@ -803,9 +835,21 @@ def game_loop():
             if enemy_projectile:
                 projectiles.append(enemy_projectile)
 #------------------------------------------------------------------BSworking----------------------------------------------------
+        # Update and draw crates
+        for crate in crates:
+            crate.update()  # Update crate state
+            screen.blit(crate.image, crate.rect.topleft)  # Draw crate on screen
+
         for collectable in collectables:
             collectable.draw(screen, camera_x)
             collectable.interact(player, score)#need to interact with JB score
+
+        screen.blit(Ammo, (100, 50))  # Change for lIVES hp bULLETS --- cLASS: wEAPON
+        screen.blit(Juice, (100, 100))
+        screen.blit(Lives, (1100, 50))
+
+
+
 #------------------------------------------------------------------BSworking----------------------------------------------------
         # -- Handle player movement --
         keys = pygame.key.get_pressed()
@@ -824,6 +868,17 @@ def game_loop():
 
         # Apply gravity to the player
         player.apply_gravity()
+#------------------------------------------------------------------BSworking----------------------------------------------------
+
+        # Check player-crate collision AFTER player movement and gravity
+        for crate in crates:
+            check_player_crate_collision(player, crate)
+
+        # Draw crates after collision checks and updates
+        for crate in crates:
+            crate.update()  # Update crate state
+            screen.blit(crate.image, crate.rect.topleft)  # Draw crate on screen
+#------------------------------------------------------------------BSworking----------------------------------------------------
 
         # Clamp player position to keep them within the map boundaries
         player.position.x = max(0, min(player.position.x, MAP_WIDTH))
