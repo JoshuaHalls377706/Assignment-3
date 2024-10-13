@@ -5,6 +5,7 @@ import random
 import os
 
 from Crate import Crate, SolidCrate, check_player_crate_collision # Import the Crate classes
+
 #--------------------------------------------------------------------------
 # FILE MANAGEMENT
 #--------------------------------------------------------------------------
@@ -168,10 +169,12 @@ class Player:
         self.is_jumping = False
         self.facing_right = True
         self.sprite_speed = speed
+        self.original_ground_level = GL  # Store the original ground level
+        self.ground_level = self.original_ground_level  # Set the current ground level
 
         # Gravity settings
         self.gravity = 1
-        self.jump_speed = -20  # Jump height
+        self.jump_speed = -25  # Jump height
 
         # Special Effect - Don't change here
         self.effect = effect
@@ -196,9 +199,12 @@ class Player:
                     self.current_sprite = 0  # Reset sprite animation
                 self.image = self.flipped_sprites[int(self.current_sprite)]
 
+        self.rect.topleft = (self.position.x - self.image.get_width() / 2, self.position.y - self.image.get_height())
+
         # Animate the player when moving
         if moving:
             self.current_sprite += 0.1
+            player_sound.play()
             if self.current_sprite >= len(self.sprites):
                 self.current_sprite = 0
         else:
@@ -214,29 +220,35 @@ class Player:
             self.is_jumping = True
             self.velocity_y = self.jump_speed
 
-    def apply_gravity(self):
-        # Apply gravity to vertical movement
+    def apply_gravity(self, platforms, crates):
         self.velocity_y += self.gravity
         self.position.y += self.velocity_y
 
-        # Check for collision with platforms
-        for platform in platforms:
-            if (self.position.x + (self.image.get_width() / 2) > platform.rect.left and
-                self.position.x - (self.image.get_width() / 2) < platform.rect.right):
-                
-                # Check if the player is falling and is above the platform
-                if self.velocity_y > 0 and self.position.y + self.image.get_height() <= platform.rect.top:
+        # Combine platforms and crates for collision checking
+        all_platforms = platforms + crates
+
+        on_platform = False  # Track if the player is standing on a platform
+
+        for platform in all_platforms:
+            if (self.position.x + self.image.get_width() / 2 > platform.rect.left and
+                    self.position.x - self.image.get_width() / 2 < platform.rect.right):
+                if self.velocity_y >= 0 and self.position.y + self.image.get_height() <= platform.rect.top:
                     if self.position.y + self.image.get_height() + self.velocity_y >= platform.rect.top:
+                        # Correct the player's position to be exactly on top of the platform
                         self.position.y = platform.rect.top - self.image.get_height()
                         self.velocity_y = 0
                         self.is_jumping = False
-                        return  # Exit once a platform collision is detected
-        
-        # Check if player lands on the ground (GL is the ground level)
-        if self.position.y >= GL:
+                        on_platform = True
+                        break
+
+        # If player is not on a platform and below the ground level, reset to the ground
+        if not on_platform and self.position.y > GL:
             self.position.y = GL
             self.velocity_y = 0
             self.is_jumping = False
+        elif not on_platform:
+            # If not on platform or ground, player continues falling
+            self.is_jumping = True
 
     def draw(self, surface, camera_x):
         # Draw the player sprite on the screen relative to the camera
@@ -262,27 +274,20 @@ class Player:
 
     def draw_Stats(self, surface):
         # Drawing player stats (same as original)
-        my_font = pygame.font.SysFont('Comic Sans MS', 20)
-        x = 10
-        y = 10
+        my_font = pygame.font.SysFont('Comic Sans MS', 40)
+        x = 50
+        y = 20
         y_spacer = 30
 
-        # Class Name and weapon
-        text_Name = my_font.render(f'Class: {self.name}, Weapon: {self.weapon.name}', True, (0, 0, 0))
-        surface.blit(text_Name, (x, y))
-
         # Remaining Lives
-        text_Lives = my_font.render(f'Lives Remaining: {self.lives}', True, (0, 0, 0))
-        surface.blit(text_Lives, (x, y + y_spacer))
+        text_Lives = my_font.render(f'{self.lives}x', True, (0, 150, 255))
+        surface.blit(text_Lives, (995, 685))
 
         # Health Bar
-        health_bar_length = 150
+        health_bar_length = 160
         health_ratio = self.health / self.maxhealth
-        pygame.draw.rect(surface, (255, 0, 0), (x, y + y_spacer * 2, health_bar_length, 30))  # Background
-        pygame.draw.rect(surface, (0, 255, 0), (x, y + y_spacer * 2, health_bar_length * health_ratio, 30))  # Health
-
-        text_Health = my_font.render(f'HP: {self.health}/{self.maxhealth}', True, (0, 0, 0))
-        surface.blit(text_Health, (x, y + y_spacer * 2))
+        pygame.draw.rect(surface, (255, 0, 0), (60, 58, health_bar_length, 20))  # Background
+        pygame.draw.rect(surface, (255, 255, 0), (60, 58, health_bar_length * health_ratio, 20))  # Health
 
         # Ammo Bar
         if self.weapon:
@@ -291,12 +296,12 @@ class Player:
 
             # Render the text
             if not self.weapon.reloading:
-                text_Ammo = my_font.render(f'Bullets: {AmmoCurrent}/{AmmoMax}', True, (0, 0, 0))
+                text_Ammo = my_font.render(f'{AmmoCurrent}/{AmmoMax}', True, (255, 255, 0))
             else:
-                text_Ammo = my_font.render('Reloading...', True, (0, 0, 0))
+                text_Ammo = my_font.render('Reloading...', True, (0, 150, 255))
 
             # Draw text on surface at the specified coordinates
-            surface.blit(text_Ammo, (x, y + y_spacer * 3))
+            surface.blit(text_Ammo, (980, 50))
 
     def Player_effect(self, player):
         self.effect(player)
@@ -328,7 +333,6 @@ class Effect_box:
         self.effect = effect  # Function to apply the effect on the player
         self.used = used
         self.color = color
-
 
     def draw(self, surface, camera_x):
         if not self.used:
@@ -434,10 +438,11 @@ class Enemy:
 
 #--------------------- BS working----------------------------------------------------------------
 class Collectable:
-    def __init__(self, x, y, width, height, sprite, value=1):
+    def __init__(self, x, y, width, height, sprite, value=1, is_life=False):
         self.rect = pygame.Rect(x, y, width, height)
         self.sprite = pygame.image.load(sprite).convert_alpha()
-        self.value = value
+        self.value = value #adds points
+        self.is_life = is_life  # Indicates if the collectable grants a life
         self.collected = False
 
     def draw(self, surface, camera_x):
@@ -449,22 +454,25 @@ class Collectable:
         player_rect = player.image.get_rect(topleft=(player.position.x - player.image.get_width() / 2, player.position.y - player.image.get_height() + 1))
         if self.rect.colliderect(player_rect) and not self.collected:
             self.collected = True
-            score.increment(self.value)
+            if self.is_life:
+                player.lives += 1  # Increase player's lives
+                life_sound.play()
+            else:
+                score.increment(self.value)  # Increase score for regular collectable
+                lempoints_sound.play()
 
 class Score:
     def __init__(self):
         self.value = 0  # Initial score
 
     def increment(self, points):
-        self.value += points  # Increment the score by the specified number of points
+        self.value += points
 
     def draw(self, surface):
-        font = pygame.font.SysFont('Comic Sans MS', 30)
-        score_text = font.render(f'Score: {self.value}', True, (255, 255, 255))
-        surface.blit(score_text, (10, 50))  # Draw the score at the top-left corner of the screen
+        my_font = pygame.font.SysFont('Comic Sans MS', 40)
+        score_text = my_font.render(f'{self.value}', True, (0,150,255))
+        surface.blit(score_text, (130, 690))
 
-    
-#--------------------- BS working----------------------------------------------------------------
 class GameManager:
     def __init__(self):
         self.levels = {
@@ -518,22 +526,24 @@ class GameManager:
         projectiles = []
         platforms = []      
         Effect_boxes = [
-            Effect_box(300, GL - 150, 50, (255, 0, 0), class_change_Assasin),  ## can we change these to different weapon choices?
-            Effect_box(600, GL - 150, 50, (0, 255, 0), class_change_Tank),     ## can we change these to different weapon choices?
-            Effect_box(900, GL - 150, 50, (0, 0, 255), class_change_Soldier)   # can we change these to different weapon choices?
+            Effect_box(300, GL - 100, 50, (255, 0, 0), class_change_Assasin),  ## can we change these to different weapon choices or do you want the character to change? Slingshot
+            Effect_box(600, GL - 100, 50, (0, 255, 0), class_change_Tank),     ## can we change these to different weapon choices? Pistol
+            Effect_box(900, GL - 100, 50, (0, 0, 255), class_change_Soldier)   # can we change these to different weapon choices? Juice Gun
         ]
         enemies = []
         #--------------------------bsworking----------------------------------------------------------
         crates = [
-            Crate(800, GL +200),  # Create a regular crate at (100, GL - 50)
-            SolidCrate(800, GL - 50)  # Create a solid crate at (500, GL - 50)
+            Crate(250, GL -120, crate_break_sound,score),
+            Crate(550, GL -120, crate_break_sound,score),
+            Crate(850, GL -120, crate_break_sound,score),
         ]
-
+        platforms.extend(crates) #try to fix player sinking issue
         collectables = [
-            Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
-            Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
+            Collectable(270, 380, 40, 40, "Lempoints.png", 20),
+            Collectable(820, 380, 40, 40, "Lempoints.png", 20),
+            Collectable(1060, 410, 40, 40, "Lempoints.png", 20),
         ]     
-        score = Score()
+        score.increment(0)
 #--------------------------bsworking----------------------------------------------------------
         print("Level 1 loaded.")
 
@@ -565,18 +575,18 @@ class GameManager:
             Effect_space(3600, GL, 700, 50, (1,1,1), Damage_player)
         ]
         crates = [
-            Crate(100, GL - 50),  # Create a regular crate at (100, GL - 50)
-            SolidCrate(500, GL - 50)  # Create a solid crate at (500, GL - 50)
+            Crate(400, GL - 150, crate_break_sound,score),
+            Crate(1000, GL - 150,crate_break_sound,score),
+            SolidCrate(1000, GL - 250, crate_break_sound,score),
+            SolidCrate(100, GL - 120, crate_break_sound,score),
         ]
-
-    
+        platforms.extend(crates) #try to fix player sinking issue  
         enemies = []
-#--------------------------bsworking----------------------------------------------------------
         collectables = [
-            Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
-            Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
+            Collectable(200, 200, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(500, 180, 40, 40, "Lempoints.png", 20)
         ]
-#--------------------------bsworking----------------------------------------------------------
+        score.increment(0)
         print("Level 2 loaded.")
 
     def check_level_2_conditions(self):
@@ -598,14 +608,17 @@ class GameManager:
             Platform(2000, GL - 400, 500, 20)
         ]
         Effect_boxes = []
+        crates = [
+            Crate(100, GL - 50, crate_break_sound,score),
+            SolidCrate(500, GL - 50,crate_break_sound,score)  # Create a solid crate
+        ]
+        platforms.extend(crates) #try to fix player sinking issue
         enemies = []
-#--------------------------bsworking----------------------------------------------------------
         collectables = [
             Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
             Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
         ]
-#--------------------------bsworking----------------------------------------------------------
-
+        score.increment(0)
         print("Level 3 loaded.")
 
     def check_level_3_conditions(self):
@@ -767,15 +780,36 @@ pygame.font.init()
 screen = pygame.display.set_mode((1200, 800))
 pygame.display.set_caption('Game Thingy mabob')
 
+#Audio initialisations
+pygame.mixer.init()
+
+# Load the sound effects
+theme_song = pygame.mixer.Sound("Theme.WAV")
+life_sound = pygame.mixer.Sound("FreeLife.mp3")
+lempoints_sound = pygame.mixer.Sound("Lempoints.mp3")
+player_sound = pygame.mixer.Sound("Footsteps.mp3")
+crate_break_sound = pygame.mixer.Sound("Cratebreak.mp3")
+
+# Set the volume to 50% (0.5)
+theme_song.set_volume(0.8)
+life_sound.set_volume(0.5)
+lempoints_sound.set_volume(0.5)
+crate_break_sound.set_volume(0.5)
+player_sound.set_volume(0.1)
+
+#Loop theme tune
+theme_song.play(loops=-1)
+
 # Set the clock
 clock = pygame.time.Clock()
 
 #Graphic initialisations
 background0_image = pygame.image.load("BG_0.png").convert()
 #In Game Headings
-Ammo = pygame.image.load("M0.png").convert()#--------------------------bsworking----------------------------------------------------------
-Juice = pygame.image.load("M1.png").convert()
-Lives = pygame.image.load("M2.png").convert()
+Ammo = pygame.image.load("M0.png").convert_alpha()
+Juicebar = pygame.image.load("M1.png").convert_alpha()
+Lives = pygame.image.load("M2.png").convert_alpha()
+LemPoints = pygame.image.load("M3.png").convert_alpha()
 
 
 # Sample projectile and weapon initialization
@@ -793,7 +827,7 @@ Effect_boxes= []
 enemies = []
 collectables = []
 crates = []
-
+score = Score()
 
 def game_loop():
     running = True
@@ -820,8 +854,15 @@ def game_loop():
         for projectile in projectiles:
             projectile.draw(screen)
 
+        player.apply_gravity(platforms,crates)
+
         for platform in platforms:
-            platform.draw(screen, camera_x)
+            if isinstance(platform, Platform):
+                platform.draw(screen, camera_x)
+            elif isinstance(platform, Crate):
+                # Draw crate relative to the camera
+                adjusted_position = platform.rect.move(-camera_x, 0)
+                screen.blit(platform.image, adjusted_position.topleft)
 
         for box in Effect_boxes:
             box.draw(screen, camera_x)
@@ -834,23 +875,16 @@ def game_loop():
             enemy_projectile = enemy.shoot(player.position, camera_x)
             if enemy_projectile:
                 projectiles.append(enemy_projectile)
-#------------------------------------------------------------------BSworking----------------------------------------------------
-        # Update and draw crates
-        for crate in crates:
-            crate.update()  # Update crate state
-            screen.blit(crate.image, crate.rect.topleft)  # Draw crate on screen
 
         for collectable in collectables:
             collectable.draw(screen, camera_x)
             collectable.interact(player, score)#need to interact with JB score
 
-        screen.blit(Ammo, (100, 50))  # Change for lIVES hp bULLETS --- cLASS: wEAPON
-        screen.blit(Juice, (100, 100))
-        screen.blit(Lives, (1100, 50))
+        screen.blit(Ammo, (950, 60))  # Change for lIVES hp bULLETS --- cLASS: wEAPON
+        screen.blit(Lives, (1050, 680))
+        screen.blit(LemPoints, (70, 700))
+        score.draw(screen)
 
-
-
-#------------------------------------------------------------------BSworking----------------------------------------------------
         # -- Handle player movement --
         keys = pygame.key.get_pressed()
         direction = pygame.Vector2(0, 0)
@@ -866,19 +900,19 @@ def game_loop():
         if keys[pygame.K_SPACE]:
             player.jump()
 
-        # Apply gravity to the player
-        player.apply_gravity()
-#------------------------------------------------------------------BSworking----------------------------------------------------
+        for crate in crates[:]:
+            crate.update()
+            # If the crate animation is complete, remove it from the collision check
+            if crate.broke_done:
+                crates.remove(crate)
+            else:
+                # Draw crate relative to the camera
+                adjusted_position = crate.rect.move(-camera_x, 0)
+                screen.blit(crate.image, adjusted_position.topleft)
 
         # Check player-crate collision AFTER player movement and gravity
         for crate in crates:
             check_player_crate_collision(player, crate)
-
-        # Draw crates after collision checks and updates
-        for crate in crates:
-            crate.update()  # Update crate state
-            screen.blit(crate.image, crate.rect.topleft)  # Draw crate on screen
-#------------------------------------------------------------------BSworking----------------------------------------------------
 
         # Clamp player position to keep them within the map boundaries
         player.position.x = max(0, min(player.position.x, MAP_WIDTH))
@@ -921,6 +955,8 @@ def game_loop():
 
         # Draw Player Stats
         player.draw_Stats(screen)
+
+        screen.blit(Juicebar, (30, 40))
 
         pygame.display.flip()
         clock.tick(60)
