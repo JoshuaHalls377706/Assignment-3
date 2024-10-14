@@ -268,10 +268,11 @@ class Player:
             self.respawn()
 
     def respawn(self):
-        your_dead()
-        self.health = self.maxhealth
-        self.position = pygame.Vector2(100, 300)
-        self.is_jumping = False
+        if    your_dead():
+            self.health = self.maxhealth
+            self.position = pygame.Vector2(100, 300)
+            self.is_jumping = False
+            theme_song.play(loops=-1) 
 
     def draw_Stats(self, surface):
         # Drawing player stats (same as original)
@@ -282,7 +283,7 @@ class Player:
 
         # Remaining Lives
         text_Lives = my_font.render(f'{self.lives}x', True, (0, 150, 255))
-        surface.blit(text_Lives, (995, 685))
+        surface.blit(text_Lives, (995, 720))
 
         # Health Bar
         health_bar_length = 160
@@ -437,7 +438,6 @@ class Enemy:
     def get_health_percentage(self):
         return self.health / self.max_health  # Returns a value between 0 and 1
 
-#--------------------- BS working----------------------------------------------------------------
 class Enemy_bird(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, damage):
         super().__init__()
@@ -565,7 +565,7 @@ class Score:
     def draw(self, surface):
         my_font = pygame.font.SysFont('Comic Sans MS', 40)
         score_text = my_font.render(f'{self.value}', True, (0,150,255))
-        surface.blit(score_text, (130, 690))
+        surface.blit(score_text, (130, 720))
 
 class GameManager:
     def __init__(self):
@@ -908,6 +908,7 @@ def display_your_dead_message():
 def your_dead():
     paused = True
     frame = 0  # Track the animation frame
+    theme_song.stop()
     Lastwords.play()  # Play the death sound
     animation_done = False  # Track if the animation has finished
 
@@ -921,7 +922,8 @@ def your_dead():
                     pygame.quit()
 
                 elif event.key == pygame.K_RETURN:  # Press Enter to restart the game
-                    return False  # Resume the game and restart
+                    Lastwords.stop()
+                    return True  # Resume the game and respawn
 
         if not animation_done:
             if frame < len(you_died):  # Play the animation
@@ -979,11 +981,12 @@ def pause_game():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:  # Press Esc to quit the game
-                       pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # Press Esc to quit the game
+                    pygame.quit()
+                    return
 
-            elif event.key == pygame.K_RETURN:  # Press Enter to resume the game
+                elif event.key == pygame.K_RETURN:  # Press Enter to resume the game
                     paused = False
 
         display_pause_message()
@@ -1073,6 +1076,9 @@ def game_loop():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # Pause the game on Esc
                     pause_game()         
+        if player.health <= 0:  # Check if player is dead
+            your_dead()
+            player.respawn()  # Respawn the player after the death sequence
 
         # This controls what is on the map runn by global veriables
         Game_Manager.load_level()
@@ -1129,8 +1135,8 @@ def game_loop():
             collectable.interact(player, score)#need to interact with JB score
 
         screen.blit(Ammo, (950, 60))  # Change for lIVES hp bULLETS --- cLASS: wEAPON
-        screen.blit(Lives, (1050, 680))
-        screen.blit(LemPoints, (70, 700))
+        screen.blit(Lives, (1050, 720))
+        screen.blit(LemPoints, (70, 725))
         score.draw(screen)
 
         # -- Handle player movement --
