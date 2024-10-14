@@ -555,9 +555,8 @@ class Enemy_bird(pygame.sprite.Sprite):
             self.alive = False  # Mark the enemy as dead
 
 class CandyRollEnemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, speed, damage):
+    def __init__(self, x, y, speed, damage, score, points=10):
         super().__init__()
-        # Load the animation frames within the class
         self.images = [
             pygame.image.load("Croll_0.png").convert_alpha(),
             pygame.image.load("Croll_1.png").convert_alpha(),
@@ -568,10 +567,25 @@ class CandyRollEnemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.speed = speed
         self.y_level = y
-        self.direction = 1  # 1 for right, -1 for left
+        self.direction = 1
         self.animation_timer = 0
-        self.animation_speed = 20  # Time in milliseconds between frames
-        self.damage = damage
+        self.animation_speed = 20
+        self.damage = damage  # Store the damage this enemy deals
+        self.alive = True
+        self.score = score
+        self.points = points
+
+    def take_damage(self, amount):
+        # Die immediately on any damage
+        self.image = pygame.image.load('Croll_dead.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+        self.alive = False  # Mark the enemy as dead
+        self.score.increment(self.points)
+
+    def deal_damage(self, player):
+        # Inflict damage to the player when the enemy collides with them
+        if self.rect.colliderect(player.rect):  # Check for collision before dealing damage
+            player.take_damage(self.damage)
 
     def update(self, dt, platforms, crates, player):
         # Animate the rolling ball
@@ -590,7 +604,7 @@ class CandyRollEnemy(pygame.sprite.Sprite):
 
         # Only check collision with the player and deal damage if they collide
         if self.rect.colliderect(player.rect):
-            self.deal_damage(player)  # Deal damage only on collision with the player
+            self.deal_damage(player)
 
     def animate(self, dt):
         # Update the animation timer
@@ -600,16 +614,11 @@ class CandyRollEnemy(pygame.sprite.Sprite):
             # Move to the next frame
             self.current_frame = (self.current_frame + 1) % len(self.images)
             self.image = self.images[self.current_frame]
-            
+
     def draw(self, surface, camera_x):
         # Adjust the position relative to the camera
         adjusted_rect = self.rect.move(-camera_x, 0)
         surface.blit(self.image, adjusted_rect)
-
-    def deal_damage(self, player):
-        # Inflict damage to the player only on collision with the player
-        player.take_damage(self.damage)
-
 
 class Collectable:
     def __init__(self, x, y, width, height, sprite, value=1, is_life=False):
@@ -767,7 +776,7 @@ class GameManager:
             Enemy_bird(2300, 200, 50, 50, damage=10),   
             Enemy_bird(3360, 200, 50, 50, damage=10),   
             Enemy_bird(4535, 200, 50, 50, damage=10),  
-            CandyRollEnemy(1500, 550, speed=3, damage=.1)
+            CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50)
         ]
         collectables = [
             Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
