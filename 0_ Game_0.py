@@ -554,6 +554,62 @@ class Enemy_bird(pygame.sprite.Sprite):
             self.falling = True
             self.alive = False  # Mark the enemy as dead
 
+class CandyRollEnemy(pygame.sprite.Sprite):
+    def __init__(self, x, y, speed, damage):
+        super().__init__()
+        # Load the animation frames within the class
+        self.images = [
+            pygame.image.load("Croll_0.png").convert_alpha(),
+            pygame.image.load("Croll_1.png").convert_alpha(),
+            pygame.image.load("Croll_2.png").convert_alpha()
+        ]
+        self.current_frame = 0
+        self.image = self.images[self.current_frame]
+        self.rect = self.image.get_rect(midbottom=(x, y))
+        self.speed = speed
+        self.y_level = y
+        self.direction = 1  # 1 for right, -1 for left
+        self.animation_timer = 0
+        self.animation_speed = 20  # Time in milliseconds between frames
+        self.damage = damage
+
+    def update(self, dt, platforms, crates, player):
+        # Animate the rolling ball
+        self.animate(dt)
+        
+        # Move the rolling ball left and right
+        self.rect.x += self.speed * self.direction
+        
+        # Check collision with platforms and crates
+        if pygame.sprite.spritecollide(self, platforms, False) or pygame.sprite.spritecollide(self, crates, False):
+            self.direction *= -1  # Reverse direction if hit platform or crate
+            self.rect.x += self.speed * self.direction
+        
+        # Ensure the ball stays at the set y level
+        self.rect.y = self.y_level
+
+        # Only check collision with the player and deal damage if they collide
+        if self.rect.colliderect(player.rect):
+            self.deal_damage(player)  # Deal damage only on collision with the player
+
+    def animate(self, dt):
+        # Update the animation timer
+        self.animation_timer += dt
+        if self.animation_timer >= self.animation_speed:
+            self.animation_timer = 0
+            # Move to the next frame
+            self.current_frame = (self.current_frame + 1) % len(self.images)
+            self.image = self.images[self.current_frame]
+            
+    def draw(self, surface, camera_x):
+        # Adjust the position relative to the camera
+        adjusted_rect = self.rect.move(-camera_x, 0)
+        surface.blit(self.image, adjusted_rect)
+
+    def deal_damage(self, player):
+        # Inflict damage to the player only on collision with the player
+        player.take_damage(self.damage)
+
 
 class Collectable:
     def __init__(self, x, y, width, height, sprite, value=1, is_life=False):
@@ -710,7 +766,8 @@ class GameManager:
             Enemy_bird(1000, 200, 50, 50, damage=10),   
             Enemy_bird(2300, 200, 50, 50, damage=10),   
             Enemy_bird(3360, 200, 50, 50, damage=10),   
-            Enemy_bird(4535, 200, 50, 50, damage=10),    
+            Enemy_bird(4535, 200, 50, 50, damage=10),  
+            CandyRollEnemy(1500, 550, speed=3, damage=.1)
         ]
         collectables = [
             Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
@@ -1185,18 +1242,24 @@ def game_loop():
             box.interact(player)
 
         for enemy in enemies:
-            enemy.update(player.position)
+            if isinstance(enemy, CandyRollEnemy):
+                # Pass the necessary arguments for CandyRollEnemy
+                enemy.update(1/60, platforms, crates, player)  # Assuming 'dt' is approximately 1/60 for 60 FPS
+            else:
+                # Use the regular update for other enemies
+                enemy.update(player.position)
+
             enemy.draw(screen, camera_x)
-                # If the enemy has a 'shoot' method, then it can shoot at the player
+
+            # If the enemy has a 'shoot' method, then it can shoot at the player
             if hasattr(enemy, 'shoot'):
                 enemy_projectiles = enemy.shoot(player.position, camera_x)
                 if enemy_projectiles:
                     # The `shoot()` method should return a list of projectiles
                     projectiles.extend(enemy_projectiles)
-            # If the enemy shoots, add the projectile to the projectiles list
-            #enemy_projectile = enemy.shoot(player.position, camera_x)
-            #if enemy_projectile:
-            #    projectiles.append(enemy_projectile)
+
+            # Check for collision between projectiles and enemies
+            for projectile in projectiles:
                 if projectile.sprite.get_rect(center=projectile.position).colliderect(enemy.rect):
                     enemy.take_damage(projectile.damage)
                     projectile.active = False  # Remove the projectile after it hits
