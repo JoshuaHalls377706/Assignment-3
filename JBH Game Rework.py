@@ -268,7 +268,7 @@ class Player:
             self.respawn()
 
     def respawn(self):
-        self.your_dead()
+        your_dead()
         self.health = self.maxhealth
         self.position = pygame.Vector2(100, 300)
         self.is_jumping = False
@@ -438,6 +438,99 @@ class Enemy:
         return self.health / self.max_health  # Returns a value between 0 and 1
 
 #--------------------- BS working----------------------------------------------------------------
+class Enemy_bird(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, damage):
+        super().__init__()
+        self.frames = [
+            pygame.image.load('bird_0.png').convert_alpha(),
+            pygame.image.load('bird_1.png').convert_alpha()
+        ]
+        self.frames = [pygame.transform.scale(frame, (width, height)) for frame in self.frames]
+        self.current_frame = 0
+        self.animation_counter = 0
+        self.image = self.frames[self.current_frame]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.damage = damage
+        self.health = 100  # Health of the enemy
+        self.start_x = x
+        self.start_y = y
+        self.movement_speed = 2
+        self.movement_counter = 0
+        self.falling = False
+        self.fall_distance = 0
+
+class Enemy_bird(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, damage):
+        super().__init__()
+        self.frames = [
+            pygame.image.load('bird_0.png').convert_alpha(),
+            pygame.image.load('bird_1.png').convert_alpha()
+        ]
+        self.frames = [pygame.transform.scale(frame, (width, height)) for frame in self.frames]
+        self.current_frame = 0
+        self.animation_counter = 0
+        self.image = self.frames[self.current_frame]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.damage = damage
+        self.health = 100  # Health of the enemy
+        self.start_x = x
+        self.start_y = y
+        self.movement_speed = 2
+        self.movement_counter = 0
+        self.falling = False
+        self.fall_distance = 0
+
+    def update(self, player_position):
+        if self.health > 0:
+            # Animate the bird
+            self.animation_counter += 1
+            if self.animation_counter >= 10:  # Change frame every 10 updates
+                self.current_frame = (self.current_frame + 1) % len(self.frames)
+                self.image = self.frames[self.current_frame]
+                self.animation_counter = 0
+
+            # Move towards the player if close enough, otherwise follow W shape
+            self.movement_counter += 1
+            distance_to_player = self.rect.centerx - player_position.x
+
+            # If player is close, move towards the player, else follow W path
+            if abs(distance_to_player) < 10:  # Change 300 to adjust detection range
+                if distance_to_player > 0:
+                    self.rect.x -= self.movement_speed  # Move left
+                else:
+                    self.rect.x += self.movement_speed  # Move right
+            else:
+                self.rect.x = self.start_x + math.sin(self.movement_counter * 0.05) * 100
+                self.rect.y = self.start_y + math.sin(self.movement_counter * 0.1) * 50
+
+        elif self.falling:
+            # Make the bird fall when dead
+            self.rect.y += 5
+            self.fall_distance += 5
+            if self.fall_distance >= 300:
+                self.kill()
+
+    def draw(self, surface, camera_x):
+        # Draw the enemy bird sprite on the screen relative to the camera
+        draw_x = self.rect.x - camera_x
+        draw_y = self.rect.y
+        surface.blit(self.image, (draw_x, draw_y))
+
+    def deal_damage(self, player):
+        if self.rect.colliderect(player.rect):
+            player.take_damage(self.damage)
+
+    def take_damage(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.image = pygame.image.load('bird_dead.png').convert_alpha()
+            self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+            self.falling = True
+            self.alive = False  # Mark the enemy as dead
+
+
 class Collectable:
     def __init__(self, x, y, width, height, sprite, value=1, is_life=False):
         self.rect = pygame.Rect(x, y, width, height)
@@ -531,7 +624,9 @@ class GameManager:
             Effect_box(600, GL - 100, 50, (0, 255, 0), class_change_Tank),     ## can we change these to different weapon choices? Pistol
             Effect_box(900, GL - 100, 50, (0, 0, 255), class_change_Soldier)   # can we change these to different weapon choices? Juice Gun
         ]
-        enemies = []
+        enemies = [
+            Enemy_bird(400, 200, 50, 50, damage=10),   
+        ]
         #--------------------------bsworking----------------------------------------------------------
         crates = [
             Crate(250, GL -120, crate_break_sound,score),
@@ -626,7 +721,7 @@ class GameManager:
         global Boss_2_done
         if Boss_2_done:
             return True
-#--------------------------------------------------------------------------------------------------LEVEL 3---END
+#--------------------------------------------------------------------------------------------------LEVEL 3---END WORKING
 
     def Gameover(self):
         player.position = pygame.Vector2(100, GL)
@@ -955,7 +1050,7 @@ font = pygame.font.SysFont(None, 30)
 Starting_projectile = Projectile("bullet.png", 50, 600, 1)
 Starting_weapon = Weapon("Pistol", "Gun.png", Starting_projectile, 6, 1, 0.3, 0, True)
 
-# Create the player
+# Create the playera
 player = Player("No Class", 100, 3, 5, Starting_weapon, "player.png", Player_Effect_Sprint)
 
 # Initialize global projectile list, platforms and Effect_boxes-------------------------------------------------------------------INITIALISE ITEM LISTS
@@ -1014,10 +1109,20 @@ def game_loop():
         for enemy in enemies:
             enemy.update(player.position)
             enemy.draw(screen, camera_x)
+                # If the enemy has a 'shoot' method, then it can shoot at the player
+            if hasattr(enemy, 'shoot'):
+                enemy_projectiles = enemy.shoot(player.position, camera_x)
+                if enemy_projectiles:
+                    # The `shoot()` method should return a list of projectiles
+                    projectiles.extend(enemy_projectiles)
             # If the enemy shoots, add the projectile to the projectiles list
-            enemy_projectile = enemy.shoot(player.position, camera_x)
-            if enemy_projectile:
-                projectiles.append(enemy_projectile)
+            #enemy_projectile = enemy.shoot(player.position, camera_x)
+            #if enemy_projectile:
+            #    projectiles.append(enemy_projectile)
+                if projectile.sprite.get_rect(center=projectile.position).colliderect(enemy.rect):
+                    enemy.take_damage(projectile.damage)
+                    projectile.active = False  # Remove the projectile after it hits
+                    break
 
         for collectable in collectables:
             collectable.draw(screen, camera_x)
@@ -1081,6 +1186,12 @@ def game_loop():
         # Reload if R key is pressed
         if keys[pygame.K_r]:
             player.weapon.reload()
+
+        #all_sprites.update()#not sure if this one is needed
+        #enemies.update() 
+
+        for enemy in enemies:
+            enemy.deal_damage(player)    
 
         # Update projectiles - to move and delete if they move to far
         for projectile in projectiles[:]:
