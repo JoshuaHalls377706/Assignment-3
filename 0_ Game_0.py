@@ -257,8 +257,8 @@ class Player:
         surface.blit(self.image, (draw_x, draw_y))
 
         # Draw weapon
-        self.weapon.position_x = self.position.x - camera_x
-        self.weapon.position_y = self.position.y - self.image.get_height() / 2
+        self.weapon.position_x = self.position.x-20 - camera_x
+        self.weapon.position_y = self.position.y-40 - self.image.get_height() / 2
         self.weapon.draw(surface, pygame.mouse.get_pos())
 
     def take_damage(self, amount):
@@ -309,25 +309,27 @@ class Player:
         self.effect(player)
 
 class Platform:
-    def __init__(self, x, y, width, height, type = "Platform", colour = (139, 69, 19)):
+    def __init__(self, x, y, width, height, image_path =None, type = "Platform", colour = (139, 69, 19)):
         self.rect = pygame.Rect(x, y, width, 1)
         self.type = type
         self.height = height
         self.colour = colour
+        if image_path:
+            self.image = pygame.image.load(image_path).convert_alpha()
+            self.image = pygame.transform.scale(self.image, (width, height))  # Stretch image to fit platform dimensions
+        else:
+            self.image = None
 
     def draw(self, surface, camera_x):
         # Adjust the rectangle's position based on the camera
         adjusted_rect = self.rect.move(-camera_x, 0)
-        if self.type == "Platform":
-            adjusted_rect.height += self.height
-            pygame.draw.rect(surface, self.colour, adjusted_rect)  # Brown color for the platform
-        elif self.type == "Box":
-            # Calculate the height to draw the box down to the ground level
-            height_to_ground = GL - adjusted_rect.bottom
-            if height_to_ground > 0:
-                adjusted_rect.height += height_to_ground
-                adjusted_rect.bottom = GL
-            pygame.draw.rect(surface, self.colour, adjusted_rect)  # Draw the box down to ground level
+        
+        if self.image:
+            # Blit the image if it exists
+            surface.blit(self.image, adjusted_rect)
+        else:
+            # Fallback to color drawing if no image is provided
+            pygame.draw.rect(surface, self.colour, adjusted_rect)
 
 class Effect_box:
     def __init__(self, x, y, Size, color, effect, used=False):
@@ -350,20 +352,42 @@ class Effect_box:
                 self.used = True  # Indicate that it was interacted with
 
 class Effect_space:
-    def __init__(self, x, y, width, Size, color, effect, used=False):
-        self.rect = pygame.Rect(x, y, width, Size)
+    def __init__(self, x, y, width, size, image_path, effect, used=False, overlap_x=0, overlap_y=0, plane='x'):
+        self.rect = pygame.Rect(x, y, width, size)
         self.effect = effect  # Function to apply the effect on the player
-        self.color = color
+        self.image = pygame.image.load(image_path).convert_alpha() if image_path else None  # Load the image
+        self.used = used  # Track if the effect has been used
+        self.overlap_x = overlap_x  # Overlap amount for the x-plane
+        self.overlap_y = overlap_y  # Overlap amount for the y-plane
+        self.plane = plane  # Determine if tiling occurs in the x-plane or y-plane
+
+        if self.plane == 'y' and self.image:
+            # Rotate the image by 90 degrees for the y-plane
+            self.image = pygame.transform.rotate(self.image, 90)
 
     def draw(self, surface, camera_x):
         adjusted_rect = self.rect.move(-camera_x, 0)
-        pygame.draw.rect(surface, self.color, adjusted_rect)  # Gold color for the box
+
+        if self.image:
+            if self.plane == 'x':
+                # Tile the image with horizontal overlap (x-plane)
+                for i in range(0, adjusted_rect.width, self.image.get_width() - self.overlap_x):
+                    for j in range(0, adjusted_rect.height, self.image.get_height()):
+                        surface.blit(self.image, (adjusted_rect.x + i, adjusted_rect.y + j))
+            elif self.plane == 'y':
+                # Tile the image with vertical overlap (y-plane) and rotated image
+                for i in range(0, adjusted_rect.width, self.image.get_width()):
+                    for j in range(0, adjusted_rect.height, self.image.get_height() - self.overlap_y):
+                        surface.blit(self.image, (adjusted_rect.x + i, adjusted_rect.y + j))
+        else:
+            # Draw a solid color rectangle if no image
+            pygame.draw.rect(surface, (255, 255, 255), adjusted_rect)
 
     def interact(self, player):
         player_rect = player.image.get_rect(topleft=(player.position.x, player.position.y - player.image.get_height() + 1))
-        # Check if the player rectangle collides with the effect box
-        if self.rect.colliderect(player_rect):
-            self.effect(player)  # Apply the effect when interacted with
+        if self.rect.colliderect(player_rect) and not self.used:
+            self.effect(player)
+            self.used = True
 
 class Enemy:
     def __init__(self, health, damage, shoot_range, projectile, position, sprite):
@@ -611,6 +635,7 @@ class GameManager:
             return False  # Default to not completed
         else:
             return self.Gameover()
+
 #--------------------------------------------------------------------------------------------------LEVEL 1---BEGINNING
 
     def level_1(self):
@@ -627,7 +652,6 @@ class GameManager:
         enemies = [
             Enemy_bird(400, 200, 50, 50, damage=10),   
         ]
-        #--------------------------bsworking----------------------------------------------------------
         crates = [
             Crate(250, GL -120, crate_break_sound,score),
             Crate(550, GL -120, crate_break_sound,score),
@@ -640,7 +664,7 @@ class GameManager:
             Collectable(1060, 410, 40, 40, "Lempoints.png", 20),
         ]     
         score.increment(0)
-#--------------------------bsworking----------------------------------------------------------
+
         print("Level 1 loaded.")
 
     def check_level_1_conditions(self):
@@ -656,31 +680,62 @@ class GameManager:
         MAP_HEIGHT = 800
         projectiles = []
         platforms = [
-            Platform(200, GL - 100, 100, 20),
-            Platform(400, GL - 150, 150, 20, "Box"),
-            Platform(600, GL - 200, 200, 20),
-            Platform(1000, GL - 100, 500, 20),
-            Platform(1000, GL - 250, 500, 20),
-            Platform(3800, GL - 150, 300, 20)
+            Platform(200, GL - 100, 100, 20,"PF_0.png"),
+            Platform(400, GL - 100, 100, 20,"PF_0.png"),
+            Platform(600, GL - 200, 200, 20,"PF_0.png"),
+            Platform(1200, GL - 100, 500, 20,"PF_0.png"),
+            Platform(1000, GL - 250, 500, 20,"PF_0.png"),
+            Platform(3800, GL - 150, 300, 20,"PF_0.png")
         ]
         Effect_boxes = [
-            Effect_space(500, GL, 500, 50, (1,1,1), Damage_player),
-            Effect_space(2000, GL - 150, 50, 150, (1,1,1), Damage_player),
-            Effect_space(2000, GL - 750, 50, 300, (1,1,1), Damage_player),
-            Effect_space(2700, GL, 500, 50, (1,1,1), Damage_player),
-            Effect_space(3600, GL, 700, 50, (1,1,1), Damage_player)
+            Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_space(2000, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(2000, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x')
         ]
         crates = [
-            Crate(400, GL - 150, crate_break_sound,score),
-            Crate(1000, GL - 150,crate_break_sound,score),
-            SolidCrate(1000, GL - 250, crate_break_sound,score),
-            SolidCrate(100, GL - 120, crate_break_sound,score),
+            Crate(350, GL - 120, crate_break_sound,score),
+            Crate(3120, GL - 120, crate_break_sound,score),
+            Crate(3580, GL - 120, crate_break_sound,score),
+            Crate(4535, GL - 120, crate_break_sound,score),
+            Crate(2200, GL - 120, crate_break_sound,score),
+            Crate(1560, 365, crate_break_sound,score),
+            #Crate(1000, GL - 150,crate_break_sound,score),
+            #SolidCrate(1000, GL - 250, crate_break_sound,score),
+            #SolidCrate(100, GL - 120, crate_break_sound,score),
         ]
         platforms.extend(crates) #try to fix player sinking issue  
-        enemies = []
+        enemies = [
+            Enemy_bird(1000, 200, 50, 50, damage=10),   
+            Enemy_bird(2300, 200, 50, 50, damage=10),   
+            Enemy_bird(3360, 200, 50, 50, damage=10),   
+            Enemy_bird(4535, 200, 50, 50, damage=10),    
+        ]
         collectables = [
-            Collectable(200, 200, 40, 40, "LemLife.png", 100, is_life=True),
-            Collectable(500, 180, 40, 40, "Lempoints.png", 20)
+            Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
+            Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
+            Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
+            Collectable(2250, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(280, 380, 40, 40, "Lempoints.png", 20),
+            Collectable(1625, 100, 40, 40, "Lempoints.png", 20),
+            Collectable(1634, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(1625, 300, 40, 40, "Lempoints.png", 20),
+            Collectable(1305, 450, 40, 40, "Lempoints.png", 20),
+            Collectable(970, 500, 40, 40, "Lempoints.png", 20),
+            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(2755, 310, 40, 40, "Lempoints.png", 20),
+            Collectable(2845, 250, 40, 40, "Lempoints.png", 20),
+            Collectable(2955, 300, 40, 40, "Lempoints.png", 20),
+            Collectable(3075, 350, 40, 40, "Lempoints.png", 20),
+            Collectable(4080, 550, 40, 40, "Lempoints.png", 20),
+            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
+            Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
+            Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
+    
         ]
         score.increment(0)
         print("Level 2 loaded.")
@@ -689,19 +744,19 @@ class GameManager:
         global Boss_1_done
         if Boss_1_done:
             return True
-#--------------------------------------------------------------------------------------------------LEVEL 3---BEGINING
+#--------------------------------------------------------------------------------------------------LEVEL 3---BEGINING----GO GO GO
     def level_3(self):
         global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies, crates, collectables, score
         MAP_WIDTH = 5000
         MAP_HEIGHT = 800
         projectiles = []
         platforms = [
-            Platform(400, GL - 100, 100, 20, "Box"),
-            Platform(600, GL - 150, 150, 20, "Box"),
-            Platform(800, GL - 200, 200, 20, "Box"),
-            Platform(1200, GL - 100, 500, 20),
-            Platform(1600, GL - 250, 500, 20),
-            Platform(2000, GL - 400, 500, 20)
+            Platform(400, GL - 100, 100, 20, "PF_0.png"),
+            Platform(600, GL - 150, 150, 20, "PF_0.png"),
+            Platform(800, GL - 200, 200, 20, "PF_0.png"),
+            Platform(1200, GL - 100, 500, 20, "PF_0.png"),
+            Platform(1600, GL - 250, 500, 20, "PF_0.png"),
+            Platform(2000, GL - 400, 500, 20, "PF_0.png")
         ]
         Effect_boxes = []
         crates = [
@@ -1011,14 +1066,22 @@ crate_break_sound = pygame.mixer.Sound("Cratebreak.mp3")
 pause_sound = pygame.mixer.Sound("pause.WAV") 
 Lastwords = pygame.mixer.Sound("LGQuote_End Game.mp3")
 
+# Create mixer channels
+theme_song_channel = pygame.mixer.Channel(0)  # Channel 0 for theme song
+life_sound_channel = pygame.mixer.Channel(1)  # Channel 1 for life sound
+lempoints_channel = pygame.mixer.Channel(2)  # Channel 2 for lempoints sound
+player_sound_channel = pygame.mixer.Channel(3)  # Channel 3 for player sound
+crate_break_channel = pygame.mixer.Channel(4)  # Channel 4 for crate break sound
+pause_sound_channel = pygame.mixer.Channel(5)  # Channel 5 for pause sound
+lastwords_channel = pygame.mixer.Channel(6)  # Channel 6 for Lastwords sound
 
 # Set the volume to 50% (0.5)
 theme_song.set_volume(0.8)
 life_sound.set_volume(0.5)
-lempoints_sound.set_volume(0.5)
-crate_break_sound.set_volume(0.5)
+lempoints_sound.set_volume(0.7)
+crate_break_sound.set_volume(0.7)
 player_sound.set_volume(0.1)
-Lastwords.set_volume(5)
+Lastwords.set_volume(.8)
 
 #Loop theme tune
 theme_song.play(loops=-1)
@@ -1028,11 +1091,13 @@ clock = pygame.time.Clock()
 
 #Graphic initialisations
 background0_image = pygame.image.load("BG_0.png").convert()
-#In Game Headings
+#In Game Headingsdddd
 Ammo = pygame.image.load("M0.png").convert_alpha()
 Juicebar = pygame.image.load("M1.png").convert_alpha()
 Lives = pygame.image.load("M2.png").convert_alpha()
 LemPoints = pygame.image.load("M3.png").convert_alpha()
+PF_small = pygame.image.load("PF_0.png").convert_alpha()
+PD_spike = pygame.image.load("SP_0.png").convert_alpha()
 
 # Load the pause screens
 pause_image = pygame.image.load('BGpause.png')
@@ -1066,6 +1131,10 @@ collectables = []
 crates = []
 score = Score()
 
+#For placing out items
+def print_player_position(player):
+    print(f"Player position: x = {player.position.x}, y = {player.position.y}")
+
 def game_loop():
     running = True
     while running:
@@ -1080,6 +1149,7 @@ def game_loop():
             your_dead()
             player.respawn()  # Respawn the player after the death sequence
 
+        print_player_position(player)
         # This controls what is on the map runn by global veriables
         Game_Manager.load_level()
         Game_Manager.progress_manager() 
@@ -1108,6 +1178,8 @@ def game_loop():
                 adjusted_position = platform.rect.move(-camera_x, 0)
                 screen.blit(platform.image, adjusted_position.topleft)
 
+
+
         for box in Effect_boxes:
             box.draw(screen, camera_x)
             box.interact(player)
@@ -1134,7 +1206,7 @@ def game_loop():
             collectable.draw(screen, camera_x)
             collectable.interact(player, score)#need to interact with JB score
 
-        screen.blit(Ammo, (950, 60))  # Change for lIVES hp bULLETS --- cLASS: wEAPON
+        screen.blit(Ammo, (950, 60))
         screen.blit(Lives, (1050, 720))
         screen.blit(LemPoints, (70, 725))
         score.draw(screen)
