@@ -1,6 +1,10 @@
 #Import libraries
 import pygame
 import random
+import os
+
+# Set working directory to where the script is located
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 #Initialize pygame
 pygame.init()
