@@ -491,28 +491,6 @@ class Enemy_bird(pygame.sprite.Sprite):
         self.falling = False
         self.fall_distance = 0
 
-class Enemy_bird(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, damage):
-        super().__init__()
-        self.frames = [
-            pygame.image.load('bird_0.png').convert_alpha(),
-            pygame.image.load('bird_1.png').convert_alpha()
-        ]
-        self.frames = [pygame.transform.scale(frame, (width, height)) for frame in self.frames]
-        self.current_frame = 0
-        self.animation_counter = 0
-        self.image = self.frames[self.current_frame]
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.damage = damage
-        self.health = 100  # Health of the enemy
-        self.start_x = x
-        self.start_y = y
-        self.movement_speed = 2
-        self.movement_counter = 0
-        self.falling = False
-        self.fall_distance = 0
-
     def update(self, player_position):
         if self.health > 0:
             # Animate the bird
@@ -857,22 +835,6 @@ class GameManager:
             pygame.quit()
 # -- Functions --
 
-def draw_background(surface):
-    # Fill the background with a gradient or solid color
-    gradient_color_start = (135, 206, 235)  # Light blue
-    gradient_color_end = (255, 255, 255)  # White
-    for i in range(MAP_HEIGHT):
-        color = (
-            gradient_color_start[0] + (gradient_color_end[0] - gradient_color_start[0]) * i // MAP_HEIGHT,
-            gradient_color_start[1] + (gradient_color_end[1] - gradient_color_start[1]) * i // MAP_HEIGHT,
-            gradient_color_start[2] + (gradient_color_end[2] - gradient_color_start[2]) * i // MAP_HEIGHT,
-        )
-        pygame.draw.line(surface, color, (0, i), (MAP_WIDTH, i))  # Fill the entire width
-
-    # Draw the green floor
-    floor_y = GL  # Floor level
-    pygame.draw.rect(surface, (0, 128, 0), (0, floor_y, MAP_WIDTH, MAP_HEIGHT - floor_y))  # Green floor
-
 def update_camera(player_pos):
     camera_x = player_pos.x - screen.get_width() // 2  # Center camera on player
     return max(0, min(camera_x, MAP_WIDTH - screen.get_width()))  # Clamp to map edges
@@ -900,7 +862,7 @@ def class_change_Tank(Player):
     Player.maxhealth = 200
     player.health = Player.maxhealth
     Player.speed = 3
-    new_projectile = Projectile("bullet.png", 30, 300, 6)
+    new_projectile = Projectile("bullet.png", 30, 300, 20)
     new_weapon = Weapon("Shotgun", "Gun.png", new_projectile, 6, 1, 0, 30, True)
     Player.weapon = new_weapon
     Class_picked = True
@@ -915,7 +877,7 @@ def class_change_Soldier(Player):
     Player.maxhealth = 100
     player.health = Player.maxhealth
     Player.speed = 5
-    new_projectile = Projectile("bullet.png", 40, 600, 5)
+    new_projectile = Projectile("bullet.png", 40, 600, 30)
     new_weapon = Weapon("Machine Gun", "Gun.png", new_projectile, 30, 1.5, 0.2, 10, True)
     Player.weapon = new_weapon
     Class_picked = True
@@ -1223,7 +1185,6 @@ def game_loop():
         Game_Manager.progress_manager() 
 
         #initial background - move to levels?
-        draw_background(screen)
         screen.blit(background0_image, (0, 0))
 
         # Get mouse position
