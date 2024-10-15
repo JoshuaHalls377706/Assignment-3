@@ -220,35 +220,43 @@ class Player:
             self.is_jumping = True
             self.velocity_y = self.jump_speed
 
-    def apply_gravity(self, platforms, crates):
+    def apply_gravity(self):
         self.velocity_y += self.gravity
-        self.position.y += self.velocity_y
+        new_position_y = self.position.y + self.velocity_y
 
         # Combine platforms and crates for collision checking
         all_platforms = platforms + crates
 
         on_platform = False  # Track if the player is standing on a platform
 
-        for platform in all_platforms:
-            if (self.position.x + self.image.get_width() / 2 > platform.rect.left and
-                    self.position.x - self.image.get_width() / 2 < platform.rect.right):
-                if self.velocity_y >= 0 and self.position.y + self.image.get_height() <= platform.rect.top:
-                    if self.position.y + self.image.get_height() + self.velocity_y >= platform.rect.top:
-                        # Correct the player's position to be exactly on top of the platform
-                        self.position.y = platform.rect.top - self.image.get_height()
-                        self.velocity_y = 0
-                        self.is_jumping = False
-                        on_platform = True
-                        break
+        keys = pygame.key.get_pressed()
 
-        # If player is not on a platform and below the ground level, reset to the ground
-        if not on_platform and self.position.y > GL:
+        # Check for collision with platforms
+        if not keys[pygame.K_s]:
+            for platform in all_platforms:
+                if (self.position.x + (self.image.get_width() / 2) > platform.rect.left and
+                    self.position.x - (self.image.get_width() / 2) < platform.rect.right):
+                    
+                    # Check if coming from above
+                    if new_position_y >= platform.rect.top and self.position.y <= platform.rect.top:
+                        self.position.y = platform.rect.top  # Sit on top of the platform
+                        self.velocity_y = 0  # Reset vertical velocity
+                        self.is_jumping = False
+                        return  # Exit early as we've handled the collision
+
+                    # Check if coming from below
+                    elif new_position_y <= platform.rect.bottom and self.position.y >= platform.rect.bottom:
+                        self.position.y = platform.rect.top  # Sit on top of the platform
+                        return  # Exit early as we've handled the collision
+                    
+        # If no collision was detected, update the position
+        self.position.y = new_position_y
+
+        # Reset position if player falls below ground level
+        if self.position.y >= GL:
             self.position.y = GL
-            self.velocity_y = 0
-            self.is_jumping = False
-        elif not on_platform:
-            # If not on platform or ground, player continues falling
-            self.is_jumping = True
+            self.velocity_y = 0  # Reset vertical velocity
+            self.on_ground = True  # Player is grounded
 
     def draw(self, surface, camera_x):
         # Draw the player sprite on the screen relative to the camera
@@ -385,9 +393,8 @@ class Effect_space:
 
     def interact(self, player):
         player_rect = player.image.get_rect(topleft=(player.position.x, player.position.y - player.image.get_height() + 1))
-        if self.rect.colliderect(player_rect) and not self.used:
+        if self.rect.colliderect(player_rect):
             self.effect(player)
-            self.used = True
 
 class Enemy:
     def __init__(self, health, damage, shoot_range, projectile, position, sprite):
@@ -714,15 +721,12 @@ class GameManager:
             Effect_box(600, GL - 100, 50, (0, 255, 0), class_change_Tank),     ## can we change these to different weapon choices? Pistol
             Effect_box(900, GL - 100, 50, (0, 0, 255), class_change_Soldier)   # can we change these to different weapon choices? Juice Gun
         ]
-        enemies = [
-            Enemy_bird(400, 200, 50, 50, damage=10),   
-        ]
+        enemies = []
         crates = [
             Crate(250, GL -120, crate_break_sound,score),
             Crate(550, GL -120, crate_break_sound,score),
             Crate(850, GL -120, crate_break_sound,score),
         ]
-        platforms.extend(crates) #try to fix player sinking issue
         collectables = [
             Collectable(270, 380, 40, 40, "Lempoints.png", 20),
             Collectable(820, 380, 40, 40, "Lempoints.png", 20),
@@ -769,8 +773,7 @@ class GameManager:
             #Crate(1000, GL - 150,crate_break_sound,score),
             #SolidCrate(1000, GL - 250, crate_break_sound,score),
             #SolidCrate(100, GL - 120, crate_break_sound,score),
-        ]
-        platforms.extend(crates) #try to fix player sinking issue  
+        ] 
         enemies = [
             Enemy_bird(1000, 200, 50, 50, damage=10),   
             Enemy_bird(2300, 200, 50, 50, damage=10),   
@@ -829,7 +832,6 @@ class GameManager:
             Crate(100, GL - 50, crate_break_sound,score),
             SolidCrate(500, GL - 50,crate_break_sound,score)  # Create a solid crate
         ]
-        platforms.extend(crates) #try to fix player sinking issue
         enemies = []
         collectables = [
             Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
@@ -924,7 +926,7 @@ def heal_player(player):
     player.health += 20 # Heal up to max health
 
 def Damage_player(player):
-    player.health -= 5  # Damage up to health
+    player.health -= 1  # Damage up to health
 
 def increase_ammo(player):
     player.weapon.ammo = min(player.weapon.ammo + 5, player.weapon.mag_size)  # Increase ammo
@@ -1234,7 +1236,7 @@ def game_loop():
         for projectile in projectiles:
             projectile.draw(screen)
 
-        player.apply_gravity(platforms,crates)
+        player.apply_gravity()
 
         for platform in platforms:
             if isinstance(platform, Platform):
