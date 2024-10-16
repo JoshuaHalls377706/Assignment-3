@@ -4,7 +4,7 @@ import random
 
 import os
 
-from Crate import Crate, SolidCrate, check_player_crate_collision # Import the Crate classes
+from Crate import Crate
 
 #--------------------------------------------------------------------------
 # FILE MANAGEMENT
@@ -1261,20 +1261,6 @@ def game_loop():
         # Jump if space key is pressed
         if keys[pygame.K_SPACE]:
             player.jump()
-
-        for crate in crates[:]:
-            crate.update()
-            # If the crate animation is complete, remove it from the collision check
-            if crate.broke_done:
-                crates.remove(crate)
-            else:
-                # Draw crate relative to the camera
-                adjusted_position = crate.rect.move(-camera_x, 0)
-                screen.blit(crate.image, adjusted_position.topleft)
-
-        # Check player-crate collision AFTER player movement and gravity
-        for crate in crates:
-            check_player_crate_collision(player, crate)
 
         # Clamp player position to keep them within the map boundaries
         player.position.x = max(0, min(player.position.x, MAP_WIDTH))
