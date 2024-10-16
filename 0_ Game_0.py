@@ -728,61 +728,62 @@ class GameManager:
         MAP_HEIGHT = 800
         projectiles = []
         platforms = [
-            Platform(200, GL - 100, 100, 20,"PF_0.png"),
-            Platform(400, GL - 100, 100, 20,"PF_0.png"),
-            Platform(600, GL - 200, 200, 20,"PF_0.png"),
-            Platform(1200, GL - 100, 500, 20,"PF_0.png"),
-            Platform(1000, GL - 250, 500, 20,"PF_0.png"),
-            Platform(3800, GL - 150, 300, 20,"PF_0.png")
+            #Platform(200, GL - 100, 100, 20,"PF_0.png"),
+            #Platform(400, GL - 100, 100, 20,"PF_0.png"),
+            #Platform(600, GL - 200, 200, 20,"PF_0.png"),
+            #Platform(1200, GL - 100, 500, 20,"PF_0.png"),
+            #Platform(1000, GL - 250, 500, 20,"PF_0.png"),
+            #Platform(3800, GL - 150, 300, 20,"PF_0.png")
         ]
         Effect_boxes = [
-            Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
-            Effect_space(2000, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
-            Effect_space(2000, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
-            Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
-            Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x')
+            #Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            #Effect_space(2000, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            #Effect_space(2000, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            #Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            #Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x')
         ]
         crates = [
-            Crate(350, GL - 120, crate_break_sound,score),
-            Crate(3120, GL - 120, crate_break_sound,score),
-            Crate(3580, GL - 120, crate_break_sound,score),
-            Crate(4535, GL - 120, crate_break_sound,score),
-            Crate(2200, GL - 120, crate_break_sound,score),
-            Crate(1560, 365, crate_break_sound,score),
+            #Crate(350, GL - 120, crate_break_sound,score),
+            #Crate(3120, GL - 120, crate_break_sound,score),
+            #Crate(3580, GL - 120, crate_break_sound,score),
+            #Crate(4535, GL - 120, crate_break_sound,score),
+            #Crate(2200, GL - 120, crate_break_sound,score),
+            #Crate(1560, 365, crate_break_sound,score),
             #Crate(1000, GL - 150,crate_break_sound,score),
             #SolidCrate(1000, GL - 250, crate_break_sound,score),
             #SolidCrate(100, GL - 120, crate_break_sound,score),
-        ] 
+        ]
         enemies = [
-            Enemy_bird(1000, 200, 50, 50, damage=10),   
-            Enemy_bird(2300, 200, 50, 50, damage=10),   
-            Enemy_bird(3360, 200, 50, 50, damage=10),   
-            Enemy_bird(4535, 200, 50, 50, damage=10),  
-            CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50)
+            #Enemy_bird(1000, 200, 50, 50, damage=0),   
+            #Enemy_bird(2300, 200, 50, 50, damage=0),   
+            #Enemy_bird(3360, 200, 50, 50, damage=0),   
+            #Enemy_bird(4535, 200, 50, 50, damage=0),  
+            #CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
+            Enemy(50, 5, 500,Starting_projectile,(1200, GL-100), "enemy1.png")
         ]
         collectables = [
-            Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
-            Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
-            Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
-            Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
-            Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
-            Collectable(2250, 200, 40, 40, "Lempoints.png", 20),
-            Collectable(280, 380, 40, 40, "Lempoints.png", 20),
-            Collectable(1625, 100, 40, 40, "Lempoints.png", 20),
-            Collectable(1634, 200, 40, 40, "Lempoints.png", 20),
-            Collectable(1625, 300, 40, 40, "Lempoints.png", 20),
-            Collectable(1305, 450, 40, 40, "Lempoints.png", 20),
-            Collectable(970, 500, 40, 40, "Lempoints.png", 20),
-            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
-            Collectable(2755, 310, 40, 40, "Lempoints.png", 20),
-            Collectable(2845, 250, 40, 40, "Lempoints.png", 20),
-            Collectable(2955, 300, 40, 40, "Lempoints.png", 20),
-            Collectable(3075, 350, 40, 40, "Lempoints.png", 20),
-            Collectable(4080, 550, 40, 40, "Lempoints.png", 20),
-            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
-            Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
-            Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
-            Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
+            #Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
+            #Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
+            #Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
+            #Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
+            #Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
+            #Collectable(2250, 200, 40, 40, "Lempoints.png", 20),
+            #Collectable(280, 380, 40, 40, "Lempoints.png", 20),
+            #Collectable(1625, 100, 40, 40, "Lempoints.png", 20),
+            #Collectable(1634, 200, 40, 40, "Lempoints.png", 20),
+            #Collectable(1625, 300, 40, 40, "Lempoints.png", 20),
+            #Collectable(1305, 450, 40, 40, "Lempoints.png", 20),
+            #Collectable(970, 500, 40, 40, "Lempoints.png", 20),
+            #Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            #Collectable(2755, 310, 40, 40, "Lempoints.png", 20),
+            #Collectable(2845, 250, 40, 40, "Lempoints.png", 20),
+            #Collectable(2955, 300, 40, 40, "Lempoints.png", 20),
+            #Collectable(3075, 350, 40, 40, "Lempoints.png", 20),
+            #Collectable(4080, 550, 40, 40, "Lempoints.png", 20),
+            #Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            #Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
+            #Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
+            #Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
     
         ]
         score.increment(0)
@@ -844,15 +845,21 @@ def class_change_Assasin(Player):
     global Class_picked
 
     player.name = "Assasin"
-    Player.maxhealth = 50
+    player.maxhealth = 50000
     player.health = Player.maxhealth
-    Player.speed = 10
-    new_projectile = Projectile("bullet.png", 75, 5000, 100)
-    new_weapon = Weapon("Sniper", "Gun.png", new_projectile, 3, 2, 0.5, 0, True)
-    Player.weapon = new_weapon
+    player.speed = 10
+    new_projectile = Projectile("bullet_sm.png", 75, 5000, 100)
+    new_weapon = Weapon("Sniper", "Juice Gun_.png", new_projectile, 3, 2, 0.5, 0, True)
+    
+    player.weapon.projectile.sprite = new_projectile.sprite
+    player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
+    player.weapon.sprite = new_weapon.sprite
+    player.weapon = new_weapon
 
-    Player.effect = Player_Effect_Dash
-    Player.effect_cooldown = 2
+    player.weapon = new_weapon
+
+    player.effect = Player_Effect_Dash
+    player.effect_cooldown = 2
 
     Class_picked = True
 
@@ -860,30 +867,42 @@ def class_change_Tank(Player):
     global Class_picked
 
     player.name = "Tank"
-    Player.maxhealth = 200
+    player.maxhealth = 200
     player.health = Player.maxhealth
-    Player.speed = 3
-    new_projectile = Projectile("bullet.png", 30, 300, 20)
-    new_weapon = Weapon("Shotgun", "Gun.png", new_projectile, 6, 1, 0, 30, True)
-    Player.weapon = new_weapon
+    player.speed = 3
+    new_projectile = Projectile("D2.png", 30, 300, 20)
+    new_weapon = Weapon("Shotgun", "Slingshot Empty.png", new_projectile, 6, 1, 0, 30, True)
+    
+    player.weapon.projectile.sprite = new_projectile.sprite
+    player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
+    player.weapon.sprite = new_weapon.sprite
+    player.weapon = new_weapon
+    
+    player.weapon = new_weapon
     Class_picked = True
 
-    Player.effect = Player_Effect_Heal
-    Player.effect_cooldown = 10
+    player.effect = Player_Effect_Heal
+    player.effect_cooldown = 10
 
 def class_change_Soldier(Player):
     global Class_picked
 
     player.name = "Soldier"
-    Player.maxhealth = 100
+    player.maxhealth = 100
     player.health = Player.maxhealth
-    Player.speed = 5
+    player.speed = 5
     new_projectile = Projectile("bullet.png", 40, 600, 30)
     new_weapon = Weapon("Machine Gun", "Gun.png", new_projectile, 30, 1.5, 0.2, 10, True)
-    Player.weapon = new_weapon
+    
+    player.weapon.projectile.sprite = new_projectile.sprite
+    player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
+    player.weapon.sprite = new_weapon.sprite
+    player.weapon = new_weapon
+    
+    player.weapon = new_weapon
     Class_picked = True
 
-    Player.effect = Player_Effect_Sprint
+    player.effect = Player_Effect_Sprint
 
 def heal_player(player):
     player.health += 20 # Heal up to max health
@@ -1208,8 +1227,6 @@ def game_loop():
                 adjusted_position = platform.rect.move(-camera_x, 0)
                 screen.blit(platform.image, adjusted_position.topleft)
 
-
-
         for box in Effect_boxes:
             box.draw(screen, camera_x)
             box.interact(player)
@@ -1228,15 +1245,16 @@ def game_loop():
             if hasattr(enemy, 'shoot'):
                 enemy_projectiles = enemy.shoot(player.position, camera_x)
                 if enemy_projectiles:
-                    # The `shoot()` method should return a list of projectiles
+                    # The `shoot()` method should return a list of projectilesdd
                     projectiles.extend(enemy_projectiles)
 
             # Check for collision between projectiles and enemies
             for projectile in projectiles:
-                if projectile.sprite.get_rect(center=projectile.position).colliderect(enemy.rect):
-                    enemy.take_damage(projectile.damage)
-                    projectile.active = False  # Remove the projectile after it hits
-                    break
+                if hasattr(enemy, 'take_damage'):
+                    if projectile.sprite.get_rect(center=projectile.position).colliderect(enemy.rect):
+                        enemy.take_damage(projectile.damage)
+                        projectile.active = False  # Remove the projectile after it hits
+                        break
 
         for collectable in collectables:
             collectable.draw(screen, camera_x)
@@ -1291,7 +1309,8 @@ def game_loop():
         #enemies.update() 
 
         for enemy in enemies:
-            enemy.deal_damage(player)    
+            if hasattr(enemy, 'deal_damage'):
+                enemy.deal_damage(player)    
 
         # Update projectiles - to move and delete if they move to far
         for projectile in projectiles[:]:
