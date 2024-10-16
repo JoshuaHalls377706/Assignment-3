@@ -1,0 +1,131 @@
+class BossEnemy(pygame.sprite.Sprite):
+    def __init__(self, health, damage, shoot_range, projectile, position, sprite_frames, game_manager, screen_width):
+        super().__init__()
+        self.max_health = health
+        self.health = health
+        self.position = pygame.Vector2(position)
+        
+        # Load animation frames for the boss
+        self.frames = [pygame.image.load(sprite).convert_alpha() for sprite in sprite_frames]
+        self.current_frame = 0
+        self.animation_counter = 0
+        self.image = self.frames[self.current_frame]  # Start with the first frame
+
+        self.last_shot_time = 0
+        self.attack_speed = 2  # time in seconds between shots
+        self.damage = damage
+        self.shoot_range = shoot_range
+        self.projectile = projectile
+        self.alive = True
+        self.game_manager = game_manager
+        self.screen_width = screen_width
+        self.direction = 1  # 1 for moving right, -1 for moving left
+        self.movement_speed = 2  # Speed at which the boss moves side to side
+        self.drop_cooldown = 1000  # Cooldown for dropping projectiles in milliseconds
+        self.animation_speed = 10  # How quickly the frames should change
+
+    def update(self, player_position):
+        if not self.alive:
+            return
+
+        # Move side to side within the screen bounds
+        self.position.x += self.direction * self.movement_speed
+        if self.position.x <= 0 or self.position.x + self.image.get_width() >= self.screen_width:
+            self.direction *= -1  # Change direction when hitting screen edges
+
+        # Animate the boss's movement by cycling through frames
+        self.animate()
+
+        # Randomly drop projectiles aimed at the player
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time > self.drop_cooldown:
+            self.drop_projectile(player_position)
+            self.last_shot_time = current_time
+
+    def animate(self):
+        # Update the animation timer
+        self.animation_counter += 1
+        if self.animation_counter >= self.animation_speed:
+            self.animation_counter = 0
+            # Move to the next frame
+            self.current_frame = (self.current_frame + 1) % len(self.frames)
+            self.image = self.frames[self.current_frame]
+
+    def drop_projectile(self, player_position):
+        # Create a new projectile aimed at the player's position
+        dx = player_position.x - self.position.x
+        dy = player_position.y - self.position.y
+        distance = math.hypot(dx, dy)
+
+        if distance != 0:
+            direction = (dx / distance, dy / distance)
+        else:
+            direction = (0, 0)
+
+        new_projectile = Projectile(
+            self.projectile.sprite_carry,
+            self.projectile.bullet_speed,
+            self.projectile.range,
+            self.projectile.damage
+        )
+        new_projectile.position = self.position.xy  # Set the position of the projectile
+        new_projectile.direction = direction  # Set the direction toward the player
+
+        # Return the projectile to add it to the game
+        return new_projectile
+
+    def take_damage(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.die()
+
+    def die(self):
+        # Mark the boss as dead
+        self.alive = False
+
+        # Trigger progression to the next level in the GameManager
+        if self.game_manager:
+            self.game_manager.next_level()  # Progress to the next stage
+
+    def draw(self, surface, camera_x):
+        # Draw the boss sprite on the screen relative to the camera
+        draw_x = self.position.x - (self.image.get_width() / 2) - camera_x
+        draw_y = self.position.y - self.image.get_height()
+        surface.blit(self.image, (draw_x, draw_y))
+
+
+
+### In your level setup (e.g., level 1 or level 2)
+#boss = BossEnemy(health=300, damage=20, shoot_range=500, projectile=some_projectile, position=(1000, GL), sprite="boss_sprite.png", game_manager=Game_Manager)
+
+# Add boss to the enemy group or list
+#enemies.append(boss)
+class GameManager:
+#check gamemanager
+
+# Define the projectile sprites and boss animation frames
+boss_frames = ["boss_frame1.png", "boss_frame2.png", "boss_frame3.png"]
+projectile_sprites = ["projectile_1.png", "projectile_2.png", "projectile_3.png"]
+
+# Create the boss with a list of projectile sprites and animation frames
+boss = BossEnemy(
+    health=300, 
+    damage=20, 
+    shoot_range=500, 
+    projectiles_list=projectile_sprites,  # List of three projectile sprites
+    position=(1000, GL), 
+    sprite_frames=boss_frames, 
+    game_manager=Game_Manager, 
+    screen_width=1200
+)
+# Handle boss projectiles (return from boss.drop_projectile)
+boss_projectile = boss.drop_projectile(player.position)
+if boss_projectile:
+    projectiles.append(boss_projectile)
+
+# Update and draw the projectiles
+for projectile in projectiles:
+    projectile.move()
+    projectile.draw(screen)
+    if not projectile.active:
+        projectiles.remove(projectile)  # Remove inactive projectiles

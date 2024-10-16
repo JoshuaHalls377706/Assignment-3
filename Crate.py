@@ -1,6 +1,4 @@
 import pygame
-import math
-import random
 import os
 
 # File Management and Initialization
@@ -43,7 +41,7 @@ class Crate(pygame.sprite.Sprite):
 
         # Handle starting the break animation after stand time is reached
         if self.stand_start_time and not self.broken:
-            if current_time - self.stand_start_time >= 5000:  # 5 seconds
+            if current_time - self.stand_start_time >= 3000:  # how ever many seconds
                 self.broken = True
                 self.animating = True
 

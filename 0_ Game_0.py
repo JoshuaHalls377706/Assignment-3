@@ -4,7 +4,8 @@ import random
 
 import os
 
-from Crate import Crate, SolidCrate, check_player_crate_collision # Import the Crate classes
+from Crate import Crate
+from Gingerpeep import Boss_Gingerpeep
 
 #--------------------------------------------------------------------------
 # FILE MANAGEMENT
@@ -215,49 +216,35 @@ class Player:
                 self.image = self.flipped_idle_sprite
 
     def jump(self):
-        # Handle jumping logic
+        # Handle jumping logic 
         if not self.is_jumping:
-            self.is_jumping = False
+            self.is_jumping = True
             self.velocity_y = self.jump_speed
 
     def apply_gravity(self):
-        self.velocity_y += self.gravity
-        new_position_y = self.position.y + self.velocity_y
+            self.velocity_y += self.gravity
+            new_position_y = self.position.y + self.velocity_y
 
-        # Combine platforms and crates for collision checking
-        all_platforms = platforms + crates
-
-        on_platform = False  # Track if the player is standing on a platform
-
-        keys = pygame.key.get_pressed()
-
-        # Check for collision with platforms
-        if not keys[pygame.K_s]:
-            for platform in all_platforms:
+            # Check for collision with platforms only
+            for platform in platforms:
                 if (self.position.x + (self.image.get_width() / 2) > platform.rect.left and
                     self.position.x - (self.image.get_width() / 2) < platform.rect.right):
                     
                     # Check if coming from above
                     if new_position_y >= platform.rect.top and self.position.y <= platform.rect.top:
-                        self.position.y = platform.rect.top  # Sit on top of the platform
+                        self.position.y = platform.rect.top  # Land on top of the platform
                         self.velocity_y = 0  # Reset vertical velocity
-                        self.is_jumping = False
+                        self.is_jumping = False  # Player is now on a platform, allow jumping again
                         return  # Exit early as we've handled the collision
 
-                    # Check if coming from below
-                    elif new_position_y <= platform.rect.bottom and self.position.y >= platform.rect.bottom:
-                        self.position.y = platform.rect.top  # Sit on top of the platform
-                        self.is_jumping = False  # <-- Add this here to allow jumping again
-                        return  # Exit early as we've handled the collision
-                    
-        # If no collision was detected, update the position
-        self.position.y = new_position_y
+            # If no platform collision was detected, apply gravity and move the player
+            self.position.y = new_position_y
 
-        # Reset position if player falls below ground level
-        if self.position.y >= GL:
-            self.position.y = GL
-            self.velocity_y = 0  # Reset vertical velocity
-            self.on_ground = True  # Player is grounded
+            # Reset position if player falls below ground level
+            if self.position.y >= GL:
+                self.position.y = GL  # Reset to ground level
+                self.velocity_y = 0  # Reset vertical velocity
+                self.is_jumping = False  # Player is now on the ground, allow jumping again
 
     def draw(self, surface, camera_x):
         # Draw the player sprite on the screen relative to the camera
@@ -341,24 +328,31 @@ class Platform:
             pygame.draw.rect(surface, self.colour, adjusted_rect)
 
 class Effect_box:
-    def __init__(self, x, y, Size, color, effect, used=False):
-        self.rect = pygame.Rect(x, y, Size, Size)
+    def __init__(self, x, y, size, image_path, effect, used=False):
+        self.rect = pygame.Rect(x, y, size, size)
         self.effect = effect  # Function to apply the effect on the player
         self.used = used
-        self.color = color
+        if image_path:
+            self.image = pygame.image.load(image_path).convert_alpha()
+            self.image = pygame.transform.scale(self.image, (size, size))  # Scale image to fit the box size
+        else:
+            self.image = None
 
     def draw(self, surface, camera_x):
         if not self.used:
             adjusted_rect = self.rect.move(-camera_x, 0)
-            pygame.draw.rect(surface, self.color, adjusted_rect)  # Gold color for the box
+            if self.image:
+                surface.blit(self.image, adjusted_rect)
+            else:
+                # If no image is provided, fallback to drawing a color (optional)
+                pygame.draw.rect(surface, (255, 255, 255), adjusted_rect)
 
     def interact(self, player):
         if not self.used:
-            player_rect = player.image.get_rect(topleft=(player.position.x - player.image.get_width()/2, player.position.y - player.image.get_height() + 1))
-            # Check if the player rectangle collides with the effect box
+            player_rect = player.image.get_rect(topleft=(player.position.x - player.image.get_width() / 2, player.position.y - player.image.get_height() + 1))
             if self.rect.colliderect(player_rect):
                 self.effect(player)  # Apply the effect when interacted with
-                self.used = True  # Indicate that it was interacted with
+                self.used = True  # Mark the box as used
 
 class Effect_space:
     def __init__(self, x, y, width, size, image_path, effect, used=False, overlap_x=0, overlap_y=0, plane='x'):
@@ -696,16 +690,16 @@ class GameManager:
         projectiles = []
         platforms = []      
         Effect_boxes = [
-            Effect_box(300, GL - 100, 50, (255, 0, 0), class_change_Assasin),  ## can we change these to different weapon choices or do you want the character to change? Slingshot
-            Effect_box(600, GL - 100, 50, (0, 255, 0), class_change_Tank),     ## can we change these to different weapon choices? Pistol
-            Effect_box(900, GL - 100, 50, (0, 0, 255), class_change_Soldier)   # can we change these to different weapon choices? Juice Gun
+            Effect_box(300, GL - 100, 50, "Bullet_1.png", class_change_Assasin),
+            Effect_box(600, GL - 100, 50, "Bullet_2.png", class_change_Tank),
+            Effect_box(900, GL - 100, 50, "Bullet_3.png", class_change_Soldier)
         ]
         enemies = []
-        crates = [
+        crates = pygame.sprite.Group(
             Crate(250, GL -120, crate_break_sound,score),
             Crate(550, GL -120, crate_break_sound,score),
             Crate(850, GL -120, crate_break_sound,score),
-        ]
+        )
         collectables = [
             Collectable(270, 380, 40, 40, "Lempoints.png", 20),
             Collectable(820, 380, 40, 40, "Lempoints.png", 20),
@@ -742,17 +736,14 @@ class GameManager:
             Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
             Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x')
         ]
-        crates = [
-            Crate(350, GL - 120, crate_break_sound,score),
+        crates = pygame.sprite.Group(
+            Crate(350, GL - 225, crate_break_sound,score),
             Crate(3120, GL - 120, crate_break_sound,score),
             Crate(3580, GL - 120, crate_break_sound,score),
             Crate(4535, GL - 120, crate_break_sound,score),
             Crate(2200, GL - 120, crate_break_sound,score),
             Crate(1560, 365, crate_break_sound,score),
-            #Crate(1000, GL - 150,crate_break_sound,score),
-            #SolidCrate(1000, GL - 250, crate_break_sound,score),
-            #SolidCrate(100, GL - 120, crate_break_sound,score),
-        ] 
+        ) 
         enemies = [
             Enemy_bird(1000, 200, 50, 50, damage=10),   
             Enemy_bird(2300, 200, 50, 50, damage=10),   
@@ -785,6 +776,17 @@ class GameManager:
             Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
     
         ]
+        boss_gingerpeep = Boss_Gingerpeep(
+    health=300, 
+    damage=20, 
+    shoot_range=500, 
+    projectile_sprites=GINGERPEEP_PROJECTILES,  # Pass the list of projectile sprites
+    position=(1000, GL), 
+    sprite_frames=GINGERPEEP_FRAMES, 
+    game_manager=Game_Manager, 
+    screen_width=1200, 
+    score=score
+)
         score.increment(0)
         print("Level 2 loaded.")
 
@@ -807,10 +809,9 @@ class GameManager:
             Platform(2000, GL - 400, 500, 20, "PF_0.png")
         ]
         Effect_boxes = []
-        crates = [
+        crates = pygame.sprite.Group(
             Crate(100, GL - 50, crate_break_sound,score),
-            SolidCrate(500, GL - 50,crate_break_sound,score)  # Create a solid crate
-        ]
+        )
         enemies = []
         collectables = [
             Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
@@ -1149,6 +1150,11 @@ font = pygame.font.SysFont(None, 30)
 Starting_projectile = Projectile("bullet.png", 50, 600, 1)
 Starting_weapon = Weapon("Pistol", "Gun.png", Starting_projectile, 6, 1, 0.3, 0, True)
 
+# Gingerpeep
+GINGERPEEP_PROJECTILES = [f"B_ging_Projectile {i}.png" for i in range(3)]  # Adjust range for the number of projectile sprites you have
+GINGERPEEP_FRAMES = [f"B_ging_Sprite {i}.png" for i in range(11)]  # Adjust the range if there are more or fewer frames
+
+
 # Create the playera
 player = Player("No Class", 100, 3, 5, Starting_weapon, "player.png", Player_Effect_Sprint)
 
@@ -1197,22 +1203,28 @@ def game_loop():
         # Draw projectiles, platforms, Effect Boxes and Enemys
         for projectile in projectiles:
             projectile.draw(screen)
-
-        player.apply_gravity()
-
-        for platform in platforms:
-            if isinstance(platform, Platform):
-                platform.draw(screen, camera_x)
-            elif isinstance(platform, Crate):
-                # Draw crate relative to the camera
-                adjusted_position = platform.rect.move(-camera_x, 0)
-                screen.blit(platform.image, adjusted_position.topleft)
-
-
-
+                
         for box in Effect_boxes:
             box.draw(screen, camera_x)
             box.interact(player)
+
+        player.apply_gravity()
+
+        crates.update()
+        crates.draw(screen)
+
+        crate_collisions = pygame.sprite.spritecollide(player, crates, False)
+        for crate in crate_collisions:
+                crate.interact(player)
+
+        for platform in platforms:
+            if hasattr(platform, 'draw'):
+                # Directly call the draw method if the object has it
+                platform.draw(screen, camera_x)
+            else:
+                # If no draw method, handle it as a crate or other object with rect and image
+                adjusted_position = platform.rect.move(-camera_x, 0)
+                screen.blit(platform.image, adjusted_position.topleft)
 
         for enemy in enemies:
             if isinstance(enemy, CandyRollEnemy):
@@ -1261,20 +1273,6 @@ def game_loop():
         # Jump if space key is pressed
         if keys[pygame.K_SPACE]:
             player.jump()
-
-        for crate in crates[:]:
-            crate.update()
-            # If the crate animation is complete, remove it from the collision check
-            if crate.broke_done:
-                crates.remove(crate)
-            else:
-                # Draw crate relative to the camera
-                adjusted_position = crate.rect.move(-camera_x, 0)
-                screen.blit(crate.image, adjusted_position.topleft)
-
-        # Check player-crate collision AFTER player movement and gravity
-        for crate in crates:
-            check_player_crate_collision(player, crate)
 
         # Clamp player position to keep them within the map boundaries
         player.position.x = max(0, min(player.position.x, MAP_WIDTH))
