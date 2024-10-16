@@ -694,7 +694,9 @@ class GameManager:
             Effect_box(600, GL - 100, 50, "Bullet_2.png", class_change_Tank),
             Effect_box(900, GL - 100, 50, "Bullet_3.png", class_change_Soldier)
         ]
-        enemies = []
+        enemies = [
+        Enemy_bird(800, 200, 50, 50, damage=10),   
+        ]
         crates = pygame.sprite.Group(
             Crate(250, GL -120, crate_break_sound,score),
             Crate(550, GL -120, crate_break_sound,score),
