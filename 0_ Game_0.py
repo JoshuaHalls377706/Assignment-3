@@ -217,7 +217,7 @@ class Player:
     def jump(self):
         # Handle jumping logic
         if not self.is_jumping:
-            self.is_jumping = True
+            self.is_jumping = False
             self.velocity_y = self.jump_speed
 
     def apply_gravity(self):
@@ -247,6 +247,7 @@ class Player:
                     # Check if coming from below
                     elif new_position_y <= platform.rect.bottom and self.position.y >= platform.rect.bottom:
                         self.position.y = platform.rect.top  # Sit on top of the platform
+                        self.is_jumping = False  # <-- Add this here to allow jumping again
                         return  # Exit early as we've handled the collision
                     
         # If no collision was detected, update the position
