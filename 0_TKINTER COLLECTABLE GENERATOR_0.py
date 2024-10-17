@@ -172,7 +172,7 @@ class StableDiffusionApp:
         user_input2 = prompt2.get()
 
         # Define a prompt template that includes user inputs
-        prompt_template = f"A cocktail drink in a tall glass, made with '{user_input2}' and '{user_input1}' garnished with a slice of lemon and served on a white background, in a photorealistic style. ."
+        prompt_template = f"A cocktail drink in a tall glass filled with '{user_input1}' and next to a'{user_input2}' on a white background, in a photorealistic style. ."
         print(f"Generated Prompt: {prompt_template}")
 
         if not user_input1.strip():
@@ -183,6 +183,11 @@ class StableDiffusionApp:
             with autocast("cuda"):
                 image = self.stable_diffusion_model(prompt_template, height=320, width=320, guidance_scale=10).images[0] #guidance scale is how strong to follow the prompt
             print("Image generated successfully!")
+
+            # Scale the image down to 30% of its original size
+            original_size = image.size
+            new_size = (int(original_size[0] * 0.2), int(original_size[1] * 0.2))
+            image = image.resize(new_size, Image.LANCZOS)
 
             # Save and load the generated image
             image.save('generatedhealth.png')

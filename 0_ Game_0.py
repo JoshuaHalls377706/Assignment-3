@@ -609,12 +609,10 @@ class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
             pygame.image.load('B_ging_Sprite 1.png').convert_alpha(),
             pygame.image.load('B_ging_Sprite 1.png').convert_alpha(),
         ]
-        self.frames = [pygame.transform.scale(frame, (width, height)) for frame in self.frames]
         self.current_frame = 0
         self.image = self.frames[self.current_frame]
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        self.damage = damage
         self.alive = True
         self.health = 10  # Dies in one shot
         self.score = score
@@ -678,11 +676,12 @@ class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
             surface.blit(self.image, (draw_x, self.rect.y))
 
 class Collectable:
-    def __init__(self, x, y, width, height, sprite, value=1, is_life=False):
+    def __init__(self, x, y, width, height, sprite, value=1,is_health = False, is_life=False):
         self.rect = pygame.Rect(x, y, width, height)
         self.sprite = pygame.image.load(sprite).convert_alpha()
         self.value = value #adds points
         self.is_life = is_life  # Indicates if the collectable grants a life
+        self.is_health = is_health #Indicates health boost
         self.collected = False
 
     def draw(self, surface, camera_x):
@@ -694,6 +693,11 @@ class Collectable:
         player_rect = player.image.get_rect(topleft=(player.position.x - player.image.get_width() / 2, player.position.y - player.image.get_height() + 1))
         if self.rect.colliderect(player_rect) and not self.collected:
             self.collected = True
+            if self.is_health:
+                player.health += 10  # Increase health
+                if player.health > player.maxhealth:
+                    player.health = player.maxhealth  # Cap at max health
+                life_sound.play()           
             if self.is_life:
                 player.lives += 1  # Increase player's lives
                 life_sound.play()
@@ -840,12 +844,17 @@ class GameManager:
             Enemy_bird(3360, 200, 50, 50, damage=0),   
             Enemy_bird(4535, 200, 50, 50, damage=0),  
             CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(3500, 550, speed=3, damage=0.1, score=score, points=50),
-            Static_Gingerpeep_Sg2(4765,600,50,50,damage=10, score=score),
+            CandyRollEnemy(2300, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(3800, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(3400, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(4500, 550, speed=3, damage=0.1, score=score, points=50),
+            Static_Gingerpeep_Sg2(4465,100,50,50,damage=10, score=score),
         ]
         collectables = [
             Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
             Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(1070, 260, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(2200, GL - 220, new_width, new_height, "generatedhealth.png", 20, is_health=True),
             Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
             Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
             Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
@@ -1278,6 +1287,11 @@ Lives = pygame.image.load("M2.png").convert_alpha()
 LemPoints = pygame.image.load("M3.png").convert_alpha()
 PF_small = pygame.image.load("PF_0.png").convert_alpha()
 PD_spike = pygame.image.load("SP_0.png").convert_alpha()
+Health = pygame.image.load("generatedhealth.png").convert_alpha()
+original_width, original_height = Health.get_size()
+new_width = int(original_width * 0.05)
+new_height = int(original_height * 0.05)
+Health = pygame.transform.scale(Health, (new_width, new_height))
 
 # Load the pause screens
 pause_image = pygame.image.load('BGpause.png')
