@@ -226,16 +226,18 @@ class Player:
             new_position_y = self.position.y + self.velocity_y
 
             # Check for collision with platforms only
-            for platform in platforms:
-                if (self.position.x + (self.image.get_width() / 2) > platform.rect.left and
-                    self.position.x - (self.image.get_width() / 2) < platform.rect.right):
-                    
-                    # Check if coming from above
-                    if new_position_y >= platform.rect.top and self.position.y <= platform.rect.top:
-                        self.position.y = platform.rect.top  # Land on top of the platform
-                        self.velocity_y = 0  # Reset vertical velocity
-                        self.is_jumping = False  # Player is now on a platform, allow jumping again
-                        return  # Exit early as we've handled the collision
+            keys = pygame.key.get_pressed()
+            if not keys[pygame.K_s]:
+                for platform in platforms:
+                    if (self.position.x + (self.image.get_width() / 2) > platform.rect.left and
+                        self.position.x - (self.image.get_width() / 2) < platform.rect.right):
+                        
+                        # Check if coming from above
+                        if new_position_y >= platform.rect.top and self.position.y <= platform.rect.top:
+                            self.position.y = platform.rect.top  # Land on top of the platform
+                            self.velocity_y = 0  # Reset vertical velocity
+                            self.is_jumping = False  # Player is now on a platform, allow jumping again
+                            return  # Exit early as we've handled the collision
 
             # If no platform collision was detected, apply gravity and move the player
             self.position.y = new_position_y
@@ -641,7 +643,8 @@ class GameManager:
         self.levels = {
             1: self.level_1,
             2: self.level_2,
-            3: self.level_3
+            3: self.level_3,
+            4: self.level_4
             # Add additional levels here
         }
         self.current_level = 1
@@ -661,8 +664,8 @@ class GameManager:
     def next_level(self):
         if self.current_level + 1 in self.levels:
             self.current_level += 1
-            self.reset_level()  # Reset to allow loading the next level
             self.load_level()
+            self.reset_level()  # Reset to allow loading the next level
 
     def progress_manager(self):
         # Check if the player has met the criteria to progress to the next level
@@ -677,6 +680,8 @@ class GameManager:
                 return self.check_level_2_conditions()
             elif self.current_level == 3:
                 return self.check_level_3_conditions()
+            elif self.current_level == 4:
+                return self.check_level_4_conditions()
             return False  # Default to not completed
         else:
             return self.Gameover()
@@ -690,23 +695,13 @@ class GameManager:
         projectiles = []
         platforms = []      
         Effect_boxes = [
-            Effect_box(300, GL - 100, 50, "Bullet_1.png", class_change_Assasin),
-            Effect_box(600, GL - 100, 50, "Bullet_2.png", class_change_Tank),
-            Effect_box(900, GL - 100, 50, "Bullet_3.png", class_change_Soldier)
+            Effect_box(300, GL - 250, 75, "Gun_Asassin.png", class_change_Assasin),
+            Effect_box(600, GL - 250, 75, "Gun_Tank.png", class_change_Tank),
+            Effect_box(900, GL - 250, 75, "Gun_Soldier.png", class_change_Soldier)
         ]
-        enemies = [
-        Enemy_bird(800, 200, 50, 50, damage=10),   
-        ]
-        crates = pygame.sprite.Group(
-            Crate(250, GL -120, crate_break_sound,score),
-            Crate(550, GL -120, crate_break_sound,score),
-            Crate(850, GL -120, crate_break_sound,score),
-        )
-        collectables = [
-            Collectable(270, 380, 40, 40, "Lempoints.png", 20),
-            Collectable(820, 380, 40, 40, "Lempoints.png", 20),
-            Collectable(1060, 410, 40, 40, "Lempoints.png", 20),
-        ]     
+        enemies = []
+        crates = pygame.sprite.Group()
+        collectables = []     
         score.increment(0)
 
         print("Level 1 loaded.")
@@ -724,19 +719,20 @@ class GameManager:
         MAP_HEIGHT = 800
         projectiles = []
         platforms = [
-            #Platform(200, GL - 100, 100, 20,"PF_0.png"),
-            #Platform(400, GL - 100, 100, 20,"PF_0.png"),
-            #Platform(600, GL - 200, 200, 20,"PF_0.png"),
-            #Platform(1200, GL - 100, 500, 20,"PF_0.png"),
-            #Platform(1000, GL - 250, 500, 20,"PF_0.png"),
-            #Platform(3800, GL - 150, 300, 20,"PF_0.png")
+            Platform(200, GL - 100, 100, 20,"PF_0.png"),
+            Platform(400, GL - 100, 100, 20,"PF_0.png"),
+            Platform(600, GL - 200, 200, 20,"PF_0.png"),
+            Platform(1200, GL - 100, 500, 20,"PF_0.png"),
+            Platform(1000, GL - 250, 500, 20,"PF_0.png"),
+            Platform(3800, GL - 150, 300, 20,"PF_0.png")
         ]
         Effect_boxes = [
-            #Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
-            #Effect_space(2000, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
-            #Effect_space(2000, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
-            #Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
-            #Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x')
+            Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_space(2000, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(2000, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_box(MAP_WIDTH-100, GL - 100, 100, "Bullet_3.png", Level_Progress_Next)
         ]
         crates = pygame.sprite.Group(
             Crate(350, GL - 225, crate_break_sound,score),
@@ -747,36 +743,35 @@ class GameManager:
             Crate(1560, 365, crate_break_sound,score),
         ) 
         enemies = [
-            #Enemy_bird(1000, 200, 50, 50, damage=0),   
-            #Enemy_bird(2300, 200, 50, 50, damage=0),   
-            #Enemy_bird(3360, 200, 50, 50, damage=0),   
-            #Enemy_bird(4535, 200, 50, 50, damage=0),  
-            #CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
-            Enemy(50, 5, 500,Starting_projectile,(1200, GL-100), "enemy1.png")
+            Enemy_bird(1000, 200, 50, 50, damage=0),   
+            Enemy_bird(2300, 200, 50, 50, damage=0),   
+            Enemy_bird(3360, 200, 50, 50, damage=0),   
+            Enemy_bird(4535, 200, 50, 50, damage=0),  
+            CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
         ]
         collectables = [
-            #Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
-            #Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
-            #Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
-            #Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
-            #Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
-            #Collectable(2250, 200, 40, 40, "Lempoints.png", 20),
-            #Collectable(280, 380, 40, 40, "Lempoints.png", 20),
-            #Collectable(1625, 100, 40, 40, "Lempoints.png", 20),
-            #Collectable(1634, 200, 40, 40, "Lempoints.png", 20),
-            #Collectable(1625, 300, 40, 40, "Lempoints.png", 20),
-            #Collectable(1305, 450, 40, 40, "Lempoints.png", 20),
-            #Collectable(970, 500, 40, 40, "Lempoints.png", 20),
-            #Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
-            #Collectable(2755, 310, 40, 40, "Lempoints.png", 20),
-            #Collectable(2845, 250, 40, 40, "Lempoints.png", 20),
-            #Collectable(2955, 300, 40, 40, "Lempoints.png", 20),
-            #Collectable(3075, 350, 40, 40, "Lempoints.png", 20),
-            #Collectable(4080, 550, 40, 40, "Lempoints.png", 20),
-            #Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
-            #Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
-            #Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
-            #Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
+            Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
+            Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
+            Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
+            Collectable(2250, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(280, 380, 40, 40, "Lempoints.png", 20),
+            Collectable(1625, 100, 40, 40, "Lempoints.png", 20),
+            Collectable(1634, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(1625, 300, 40, 40, "Lempoints.png", 20),
+            Collectable(1305, 450, 40, 40, "Lempoints.png", 20),
+            Collectable(970, 500, 40, 40, "Lempoints.png", 20),
+            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(2755, 310, 40, 40, "Lempoints.png", 20),
+            Collectable(2845, 250, 40, 40, "Lempoints.png", 20),
+            Collectable(2955, 300, 40, 40, "Lempoints.png", 20),
+            Collectable(3075, 350, 40, 40, "Lempoints.png", 20),
+            Collectable(4080, 550, 40, 40, "Lempoints.png", 20),
+            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
+            Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
+            Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
     
         ]
         boss_gingerpeep = Boss_Gingerpeep(
@@ -811,14 +806,14 @@ class GameManager:
             Platform(1600, GL - 250, 500, 20, "PF_0.png"),
             Platform(2000, GL - 400, 500, 20, "PF_0.png")
         ]
-        Effect_boxes = []
-        crates = pygame.sprite.Group(
-            Crate(100, GL - 50, crate_break_sound,score),
-        )
+        Effect_boxes = [
+            Effect_box(MAP_WIDTH-100, GL - 100, 100, "Bullet_3.png", Level_Progress_Next)
+            ]
+        crates = pygame.sprite.Group()
         enemies = []
         collectables = [
-            Collectable(200, GL - 40, 40, 40, "LemLife.png", 5),
-            Collectable(500, GL - 40, 40, 40, "Lempoints.png", 10)
+            Collectable(500, GL - 40, 40, 40, "LemLife.png", 5),
+            Collectable(500, GL - 80, 40, 40, "Lempoints.png", 10)
         ]
         score.increment(0)
         print("Level 3 loaded.")
@@ -827,7 +822,25 @@ class GameManager:
         global Boss_2_done
         if Boss_2_done:
             return True
-#--------------------------------------------------------------------------------------------------LEVEL 3---END WORKING
+#--------------------------------------------------------------------------------------------------LEVEL 4---BEGINING
+    def level_4(self):
+        global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies, crates, collectables, score
+        MAP_WIDTH = 5000
+        MAP_HEIGHT = 800
+        projectiles = []
+        platforms = []
+        Effect_boxes = []
+        crates = pygame.sprite.Group()
+        enemies = []
+        collectables = []
+        score.increment(0)
+        print("Level 4 loaded.")
+
+    def check_level_4_conditions(self):
+        global Boss_2_done
+        if Boss_2_done:
+            return True
+#--------------------------------------------------------------------------------------------------LEVEL 4---END WORKING
 
     def Gameover(self):
         player.position = pygame.Vector2(100, GL)
@@ -844,15 +857,15 @@ def update_camera(player_pos):
     camera_x = player_pos.x - screen.get_width() // 2  # Center camera on player
     return max(0, min(camera_x, MAP_WIDTH - screen.get_width()))  # Clamp to map edges
 
-def class_change_Assasin(Player):
+def class_change_Assasin(player):
     global Class_picked
 
     player.name = "Assasin"
-    player.maxhealth = 50000
-    player.health = Player.maxhealth
+    player.maxhealth = 75
+    player.health = player.maxhealth
     player.speed = 10
-    new_projectile = Projectile("bullet_sm.png", 75, 5000, 100)
-    new_weapon = Weapon("Sniper", "Juice Gun_.png", new_projectile, 3, 2, 0.5, 0, True)
+    new_projectile = Projectile("Bullet_Assassin_2.png", 75, 5000, 100)
+    new_weapon = Weapon("Sniper", "Gun_Asassin.png", new_projectile, 3, 2, 0.5, 0, True)
     
     player.weapon.projectile.sprite = new_projectile.sprite
     player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
@@ -866,15 +879,15 @@ def class_change_Assasin(Player):
 
     Class_picked = True
 
-def class_change_Tank(Player):
+def class_change_Tank(player):
     global Class_picked
 
     player.name = "Tank"
     player.maxhealth = 200
-    player.health = Player.maxhealth
+    player.health = player.maxhealth
     player.speed = 3
-    new_projectile = Projectile("D2.png", 30, 300, 20)
-    new_weapon = Weapon("Shotgun", "Slingshot Empty.png", new_projectile, 6, 1, 0, 30, True)
+    new_projectile = Projectile("Bullet_Tank.png", 30, 300, 20)
+    new_weapon = Weapon("Shotgun", "Gun_Tank.png", new_projectile, 6, 1, 0, 30, True)
     
     player.weapon.projectile.sprite = new_projectile.sprite
     player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
@@ -887,15 +900,15 @@ def class_change_Tank(Player):
     player.effect = Player_Effect_Heal
     player.effect_cooldown = 10
 
-def class_change_Soldier(Player):
+def class_change_Soldier(player):
     global Class_picked
 
     player.name = "Soldier"
     player.maxhealth = 100
-    player.health = Player.maxhealth
+    player.health = player.maxhealth
     player.speed = 5
-    new_projectile = Projectile("bullet.png", 40, 600, 30)
-    new_weapon = Weapon("Machine Gun", "Gun.png", new_projectile, 30, 1.5, 0.2, 10, True)
+    new_projectile = Projectile("Bullet_soldier.png", 40, 600, 30)
+    new_weapon = Weapon("Machine Gun", "Gun_Soldier.png", new_projectile, 30, 1.5, 0.2, 10, True)
     
     player.weapon.projectile.sprite = new_projectile.sprite
     player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
@@ -976,6 +989,11 @@ def Player_Effect_Heal(player):
         if player.effect_active and (current_time - player.last_effect_active >= Heal_duration):
             player.speed_boost = 1  # Reset to normal speed
             player.effect_active = False  # Reset the dashing flag
+
+def Level_Progress_Next(player):
+    player.weapon.ammo = player.weapon.mag_size
+    player.position = pygame.Vector2(100, GL)
+    Game_Manager.next_level()
 
 #Respawn/Dead
 def display_your_dead_message():
