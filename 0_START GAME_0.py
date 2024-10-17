@@ -54,7 +54,7 @@ moving_sprites.add(player)
 
 # Define footstep sound
 sprite_speed = 8
-footstep_delay = 500  # milliseconds (time between footstep sounds)
+footstep_delay = 1000  # milliseconds (time between footstep sounds)
 last_footstep_time = 0  # Initialize last footstep sound time
 
 moving = False
@@ -92,9 +92,9 @@ def Game_Opening():
     frame_background = 0
     Themesong.play()
     
-    background_delay = 500  # Background frame change delay
+    background_delay = 1000  # Background frame change delay
     player_delay = 10       # Delay between player sprite updates (in ms)
-    footstep_delay = 50     # Delay for footstep sound in ms
+    footstep_delay = 1000     # Delay for footstep sound in ms
     hide_frame = 37          # Frame where Lemon Guy disappears
     start_ticks_background = pygame.time.get_ticks()
     start_ticks_player = pygame.time.get_ticks()
