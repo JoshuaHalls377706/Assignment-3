@@ -1,6 +1,7 @@
 import pygame
 import math
 import random
+import subprocess
 
 import os
 
@@ -848,13 +849,14 @@ class GameManager:
             CandyRollEnemy(3800, 550, speed=3, damage=0.1, score=score, points=50),
             CandyRollEnemy(3400, 550, speed=3, damage=0.1, score=score, points=50),
             CandyRollEnemy(4500, 550, speed=3, damage=0.1, score=score, points=50),
-            Static_Gingerpeep_Sg2(4465,100,50,50,damage=10, score=score),
+            #Static_Gingerpeep_Sg2(4465,100,50,50,damage=10, score=score),
         ]
         collectables = [
             Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
             Collectable(2250, 150, 40, 40, "LemLife.png", 100, is_life=True),
             Collectable(1070, 260, new_width, new_height, "generatedhealth.png", 20, is_health=True),
             Collectable(2200, GL - 220, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(3955, 450, new_width, new_height, "generatedhealth.png", 20, is_health=True),
             Collectable(2250, 100, 40, 40, "Lempoints.png", 20),
             Collectable(2200, 150, 40, 40, "Lempoints.png", 20),
             Collectable(2300, 150, 40, 40, "Lempoints.png", 20),
@@ -899,20 +901,79 @@ class GameManager:
             Platform(2000, GL - 400, 500, 20, "PF_0.png")
         ]
         Effect_boxes = [
+            Effect_space(2630, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=120, plane='x'),
+            Effect_space(3630, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(4630, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(930, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
+            Effect_space(1000, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=120, plane='x'),
+            Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=120, plane='x'),
             Effect_box(MAP_WIDTH-100, GL - 100, 100, "Bullet_3.png", Level_Progress_Next)
             ]
-        crates = pygame.sprite.Group()
-        enemies = []
-        collectables = [
-            Collectable(500, GL - 40, 40, 40, "LemLife.png", 5),
-            Collectable(500, GL - 80, 40, 40, "Lempoints.png", 10)
+        crates = pygame.sprite.Group(
+        Crate(350, 225, crate_break_sound,score),
+        Crate(3120, 120, crate_break_sound,score),
+
+        Crate(3420, 120, crate_break_sound,score),
+        Crate(2920, 120, crate_break_sound,score),
+        Crate(4120, 120, crate_break_sound,score),
+
+        Crate(2745, 200, crate_break_sound,score),
+        Crate(2445, 300, crate_break_sound,score),
+        Crate(2745, 400, crate_break_sound,score),
+        Crate(2445, 500, crate_break_sound,score),
+
+        Crate(3500, 200, crate_break_sound,score),
+        Crate(4000, 200, crate_break_sound,score),
+        Crate(3600, 200, crate_break_sound,score),
+        Crate(4000, 200, crate_break_sound,score),
+        Crate(4300, 300, crate_break_sound,score),
+        Crate(4600, 400, crate_break_sound,score),
+        )
+        enemies = [
+            Enemy_bird(1000, 200, 50, 50, damage=0),   
+            Enemy_bird(2300, 200, 50, 50, damage=0),   
+            Enemy_bird(3360, 200, 50, 50, damage=0),   
+            Enemy_bird(4535, 200, 50, 50, damage=0),  
+            Enemy_bird(3500, 400, 50, 50, damage=0),   
+            Enemy_bird(3700, 400, 50, 50, damage=0),   
+            CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(2300, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(3800, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(3400, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(4500, 550, speed=3, damage=0.1, score=score, points=50),
         ]
-        boss_gingerpeep = Boss_Gingerpeep(
-        health=300, 
-        damage=20, 
-        shoot_range=500, 
-        projectile_sprites=GINGERPEEP_PROJECTILES,  # Pass the list of projectile sprites
-        position=(1000, GL), 
+        collectables = [
+            Collectable(380, 125, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(3300, 280, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(2250, 120, 40, 40, "LemLife.png", 100, is_life=True),
+            Collectable(3200, 210, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(3400, 210, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(3300, 180, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(2500, 450, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(4000, 220, new_width, new_height, "generatedhealth.png", 20, is_health=True),
+            Collectable(1185, 350, 40, 40, "Lempoints.png", 20),
+            Collectable(1285, 550, 40, 40, "Lempoints.png", 20),
+            Collectable(1385, 550, 40, 40, "Lempoints.png", 20),
+            Collectable(1485, 550, 40, 40, "Lempoints.png", 20),
+            Collectable(280, 380, 40, 40, "Lempoints.png", 20),
+            Collectable(1625, 100, 40, 40, "Lempoints.png", 20),
+            Collectable(1634, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(1625, 300, 40, 40, "Lempoints.png", 20),
+            Collectable(1305, 450, 40, 40, "Lempoints.png", 20),
+            Collectable(970, 500, 40, 40, "Lempoints.png", 20),
+            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(2755, 310, 40, 40, "Lempoints.png", 20),
+            Collectable(2845, 250, 40, 40, "Lempoints.png", 20),
+            Collectable(2955, 300, 40, 40, "Lempoints.png", 20),
+            Collectable(3075, 350, 40, 40, "Lempoints.png", 20),
+            Collectable(4080, 550, 40, 40, "Lempoints.png", 20),
+            Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
+            Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
+            Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
+            Collectable(4300, 310, 40, 40, "Lempoints.png", 20)  
+        ]
+    
+        Boss_Gingerpeep(health=300, damage=20, shoot_range=500, projectile_sprites=GINGERPEEP_PROJECTILES, position=(4600, GL),
         sprite_frames=GINGERPEEP_FRAMES, 
         game_manager=Game_Manager, 
         screen_width=1200, 
@@ -955,6 +1016,7 @@ class GameManager:
             self.load_level()
         else:
             pygame.quit()
+
 # -- Functions --
 
 # Load player name from file
@@ -1110,6 +1172,22 @@ def Level_Progress_Next(player):
     player.weapon.ammo = player.weapon.mag_size
     player.position = pygame.Vector2(100, GL)
     Game_Manager.next_level()
+
+#Function END GAME
+end_game_frames = [pygame.image.load(f'END GAME_{i}.png') for i in range(0, 5)]
+
+def END_GAME(screen):
+    clock = pygame.time.Clock()
+    frame_duration = 500  # 500 ms per frame
+    for i, frame in enumerate(end_game_frames):
+        screen.blit(frame, (0, 0))  # Blit frame on the screen
+        pygame.display.update()  # Update the screen
+        pygame.time.wait(frame_duration)  # Wait for the next frame
+        clock.tick(60)  # Maintain 60 FPS
+        pygame.quit
+        pygame_script = os.path.join(os.getcwd(), "0_START GAME_0.py")  # Adjust with the correct name and path
+        subprocess.run(["python", pygame_script], check=True)
+        
 
 #Respawn/Dead
 def display_your_dead_message():

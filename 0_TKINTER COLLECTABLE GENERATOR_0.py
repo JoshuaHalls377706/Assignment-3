@@ -132,7 +132,7 @@ class GUI_Interface:
         self.prompt1.place(x=400, y=180)
         
         #Text for prompt 2
-        self.generated_prompt_label2 = ctk.CTkLabel(master=self.master, height=30, width=500,font=default_font, text= "What is your most beloved animal?", text_color="DodgerBlue2", fg_color="lemon chiffon")
+        self.generated_prompt_label2 = ctk.CTkLabel(master=self.master, height=30, width=500,font=default_font, text= "What is your favourite colour?", text_color="DodgerBlue2", fg_color="lemon chiffon")
         self.generated_prompt_label2.place(x=390, y=210) 
 
         # Create input boxes for the prompt 2
@@ -172,7 +172,7 @@ class StableDiffusionApp:
         user_input2 = prompt2.get()
 
         # Define a prompt template that includes user inputs
-        prompt_template = f"A cocktail drink in a tall glass filled with '{user_input1}' and next to a'{user_input2}' on a white background, in a photorealistic style. ."
+        prompt_template = f"A cocktail drink in a martini glass filled with '{user_input2}'liquid being with slices of'{user_input1}' on a white background, in a paper cutout style. ."
         print(f"Generated Prompt: {prompt_template}")
 
         if not user_input1.strip():
@@ -181,7 +181,7 @@ class StableDiffusionApp:
 
         try:
             with autocast("cuda"):
-                image = self.stable_diffusion_model(prompt_template, height=320, width=320, guidance_scale=10).images[0] #guidance scale is how strong to follow the prompt
+                image = self.stable_diffusion_model(prompt_template, height=320, width=320, guidance_scale=12).images[0] #guidance scale is how strong to follow the prompt
             print("Image generated successfully!")
 
             # Scale the image down to 30% of its original size
