@@ -602,6 +602,81 @@ class CandyRollEnemy(pygame.sprite.Sprite):
         adjusted_rect = self.rect.move(-camera_x, 0)
         surface.blit(self.image, adjusted_rect)
 
+class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, damage, score):
+        super().__init__()
+        self.frames = [
+            pygame.image.load('B_ging_Sprite 1.png').convert_alpha(),
+            pygame.image.load('B_ging_Sprite 1.png').convert_alpha(),
+        ]
+        self.frames = [pygame.transform.scale(frame, (width, height)) for frame in self.frames]
+        self.current_frame = 0
+        self.image = self.frames[self.current_frame]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.damage = damage
+        self.alive = True
+        self.health = 10  # Dies in one shot
+        self.score = score
+        self.animation_counter = 0
+        self.animation_speed = 10
+        self.points = 1000  # Points awarded when enemy dies
+
+    def update(self):
+        if self.alive:
+            # Animate the enemy
+            self.animation_counter += 1
+            if self.animation_counter >= self.animation_speed:
+                self.current_frame = (self.current_frame + 1) % len(self.frames)
+                self.image = self.frames[self.current_frame]
+                self.animation_counter = 0
+
+    def take_damage(self):
+        # The enemy dies in one shot
+        self.health -= 1
+        if self.health <= 0:
+            self.die()
+
+    def die(self, surface, font):
+        self.alive = False
+        self.score.increment(self.points)  # Award points
+        print("Gingerpeep defeated!")  # Debugging message
+        self.display_boss_message(surface, font)
+
+    def display_boss_message(self, surface, font):
+        # The message to be displayed after Gingerpeep's death
+        lines = [
+            "ATTENTION OUR DEAR HERO:",
+            "HA HA HA, Did you think it would be that easy?",
+            "",
+            "",
+            "...[awkward silence]...",
+            "",
+            "",
+            "...Press ENTER to go onto the next level...",
+        ]
+
+        # Get the center of the screen
+        screen_rect = surface.get_rect()
+
+        # Set the base height (e.g., centered vertically)
+        total_text_height = len(lines) * 50  # Calculate total height of the text block
+        base_y = screen_rect.centery - total_text_height // 2  # Starting Y position (centered vertically)
+
+        # Render and center each line of text
+        for i, line in enumerate(lines):
+            message_text = font.render(line, True, (41, 148, 214))  # Render the line in a blue color
+            text_rect = message_text.get_rect()  # Get the bounding rectangle of the text
+            text_rect.center = (screen_rect.centerx, base_y + i * 50)  # Center horizontally and space vertically
+            surface.blit(message_text, text_rect)  # Display the text
+
+        pygame.display.flip()  # Update the display with the message
+
+    def draw(self, surface, camera_x):
+        if self.alive:
+            draw_x = self.rect.x - camera_x
+            surface.blit(self.image, (draw_x, self.rect.y))
+
 class Collectable:
     def __init__(self, x, y, width, height, sprite, value=1, is_life=False):
         self.rect = pygame.Rect(x, y, width, height)
@@ -695,15 +770,27 @@ class GameManager:
         projectiles = []
         platforms = []      
         Effect_boxes = [
-            Effect_box(300, GL - 250, 75, "Gun_Asassin.png", class_change_Assasin),
-            Effect_box(600, GL - 250, 75, "Gun_Tank.png", class_change_Tank),
-            Effect_box(900, GL - 250, 75, "Gun_Soldier.png", class_change_Soldier)
+            Effect_box(150, GL - 240, 75, "Gun_Asassin.png", class_change_Assasin),
+            Effect_box(550, GL - 240, 75, "Gun_Tank.png", class_change_Tank),
+            Effect_box(980, GL - 260, 75, "Gun_Soldier.png", class_change_Soldier)
         ]
-        enemies = []
-        crates = pygame.sprite.Group()
-        collectables = []     
+        enemies = [
+        Enemy_bird(800, 200, 50, 50, damage=0),     
+        ]
+        crates = pygame.sprite.Group(
+        )
+        collectables = [
+        Collectable(370, 410, 40, 40, "Lempoints.png", 20),
+        Collectable(820, 390, 40, 40, "Lempoints.png", 20),
+        ]     
         score.increment(0)
 
+        # Display the welcome message with the player's name
+        welcome_message = f"OK, {player_name}, its time for us to be on our way! Which door looks good to you?"
+        font = pygame.font.SysFont('Comic Sans MS', 30)
+        message_text = font.render(welcome_message, True, (0, 150, 255))
+        screen.blit(message_text, (100, 50))  # Adjust the (x, y) position as needed
+        
         print("Level 1 loaded.")
 
     def check_level_1_conditions(self):
@@ -727,27 +814,34 @@ class GameManager:
             Platform(3800, GL - 150, 300, 20,"PF_0.png")
         ]
         Effect_boxes = [
-            Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_space(500, GL-40, 500, 110, "SP_0.png", Damage_player, overlap_x=120, plane='x'),
             Effect_space(2000, GL - 200, 50, 150, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
             Effect_space(2000, GL - 850, 20, 300, "SP_0.png", Damage_player, overlap_y=10, plane='y'),
-            Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
-            Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=10, plane='x'),
+            Effect_space(2700, GL, 500, 100, "SP_0.png", Damage_player, overlap_x=120, plane='x'),
+            Effect_space(3600, GL, 700, 110, "SP_0.png", Damage_player, overlap_x=120, plane='x'),
             Effect_box(MAP_WIDTH-100, GL - 100, 100, "Bullet_3.png", Level_Progress_Next)
         ]
         crates = pygame.sprite.Group(
             Crate(350, GL - 225, crate_break_sound,score),
             Crate(3120, GL - 120, crate_break_sound,score),
+
+            Crate(3420, GL - 120, crate_break_sound,score),
+            Crate(2920, GL - 120, crate_break_sound,score),
+            Crate(4120, GL - 120, crate_break_sound,score),
+
             Crate(3580, GL - 120, crate_break_sound,score),
             Crate(4535, GL - 120, crate_break_sound,score),
             Crate(2200, GL - 120, crate_break_sound,score),
             Crate(1560, 365, crate_break_sound,score),
-        ) 
+        )
         enemies = [
             Enemy_bird(1000, 200, 50, 50, damage=0),   
             Enemy_bird(2300, 200, 50, 50, damage=0),   
             Enemy_bird(3360, 200, 50, 50, damage=0),   
             Enemy_bird(4535, 200, 50, 50, damage=0),  
             CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
+            CandyRollEnemy(3500, 550, speed=3, damage=0.1, score=score, points=50),
+            Static_Gingerpeep_Sg2(4765,600,50,50,damage=10, score=score),
         ]
         collectables = [
             Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
@@ -771,20 +865,9 @@ class GameManager:
             Collectable(1210, 200, 40, 40, "Lempoints.png", 20),
             Collectable(3600, 180, 40, 40, "Lempoints.png", 20),
             Collectable(4580, 180, 40, 40, "Lempoints.png", 20),
-            Collectable(4300, 310, 40, 40, "Lempoints.png", 20)
-    
+            Collectable(4300, 310, 40, 40, "Lempoints.png", 20)  
         ]
-        boss_gingerpeep = Boss_Gingerpeep(
-    health=300, 
-    damage=20, 
-    shoot_range=500, 
-    projectile_sprites=GINGERPEEP_PROJECTILES,  # Pass the list of projectile sprites
-    position=(1000, GL), 
-    sprite_frames=GINGERPEEP_FRAMES, 
-    game_manager=Game_Manager, 
-    screen_width=1200, 
-    score=score
-)
+
         score.increment(0)
         print("Level 2 loaded.")
 
@@ -815,6 +898,18 @@ class GameManager:
             Collectable(500, GL - 40, 40, 40, "LemLife.png", 5),
             Collectable(500, GL - 80, 40, 40, "Lempoints.png", 10)
         ]
+        boss_gingerpeep = Boss_Gingerpeep(
+        health=300, 
+        damage=20, 
+        shoot_range=500, 
+        projectile_sprites=GINGERPEEP_PROJECTILES,  # Pass the list of projectile sprites
+        position=(1000, GL), 
+        sprite_frames=GINGERPEEP_FRAMES, 
+        game_manager=Game_Manager, 
+        screen_width=1200, 
+        score=score
+        )
+        
         score.increment(0)
         print("Level 3 loaded.")
 
@@ -852,6 +947,18 @@ class GameManager:
         else:
             pygame.quit()
 # -- Functions --
+
+# Load player name from file
+def load_player_name():
+    if os.path.exists("player_name.txt"):
+        with open("player_name.txt", "r") as f:
+            return f.read().strip()
+    return "Dear Hero"  # Default name if file is not found
+
+# Function to display a message on screen
+def display_message(text, font, color, surface, x, y):
+    message_surface = font.render(text, True, color)
+    surface.blit(message_surface, (x, y))
 
 def update_camera(player_pos):
     camera_x = player_pos.x - screen.get_width() // 2  # Center camera on player
@@ -1002,7 +1109,7 @@ def display_your_dead_message():
 
     # The End message split into lines
     lines = [
-        "ATTENTION OUR DEAR HERO:",
+        f"ATTENTION {player_name}:",
         "...there really is no easy way to say this...",
         "...You laugh in the face of danger no more!",
         "...You have kicked the bucket...",
@@ -1075,7 +1182,7 @@ def display_pause_message():
 
     # The pause message split into lines
     lines = [
-        "ATTENTION OUR DEAR HERO:", #potential to add name funct at the start
+        f"ATTENTION {player_name}:", 
         "There is NO ESCAPE, the only way out is through!",
         "You must take this moment to FIGHT ON!",
         "'our hero fist pumps the air ...'",
@@ -1114,7 +1221,6 @@ def pause_game():
 
                 elif event.key == pygame.K_RETURN:  # Press Enter to resume the game
                     paused = False
-
         display_pause_message()
 
 #---------------------------------------------------------------------------------------------------------------------------------------------
@@ -1162,6 +1268,9 @@ clock = pygame.time.Clock()
 
 #Graphic initialisations
 background0_image = pygame.image.load("BG_0.png").convert()
+background_stage1 = pygame.image.load("BG_0_portals.png").convert()
+
+
 #In Game Headingsdddd
 Ammo = pygame.image.load("M0.png").convert_alpha()
 Juicebar = pygame.image.load("M1.png").convert_alpha()
@@ -1193,7 +1302,6 @@ Starting_weapon = Weapon("Pistol", "Gun.png", Starting_projectile, 6, 1, 0.3, 0,
 GINGERPEEP_PROJECTILES = [f"B_ging_Projectile {i}.png" for i in range(3)]  # Adjust range for the number of projectile sprites you have
 GINGERPEEP_FRAMES = [f"B_ging_Sprite {i}.png" for i in range(11)]  # Adjust the range if there are more or fewer frames
 
-
 # Create the playera
 player = Player("No Class", 100, 3, 5, Starting_weapon, "player.png", Player_Effect_Sprint)
 
@@ -1204,8 +1312,9 @@ platforms = []
 Effect_boxes= []
 enemies = []
 collectables = []
-crates = []
+crates = ()
 score = Score()
+player_name = load_player_name()
 
 #For placing out items
 def print_player_position(player):
@@ -1230,14 +1339,31 @@ def game_loop():
         Game_Manager.load_level()
         Game_Manager.progress_manager() 
 
-        #initial background - move to levels?
-        screen.blit(background0_image, (0, 0))
+        # **Blit Stage 1 Background Only if in Stage level_1 **
+        if Game_Manager.current_level == 1:
+            # Blit the unique background for Stage 1
+            screen.blit(background_stage1, (0,0))
+            font = pygame.font.SysFont('Comic Sans MS', 40)
+            message_1 = f"Okay, {player_name} Thanks for coming with me!"
+            message_2 = "       Which door shall we choose?"
+            color = 0, 150, 255 
+            display_message(message_1, font, color, screen, 200, 90)
+            display_message(message_2, font, color, screen, 200, 130) 
+
+        else:
+            screen.blit(background0_image, (0, 0))
+
+        crates.update()
+        crates.draw(screen)
 
         # Get mouse position
         mouse_pos = pygame.mouse.get_pos()
 
         # Update camera position based on player
         camera_x = update_camera(player.position)
+        
+        for crate in crates:
+            screen.blit(crate.image, crate.rect.move(-camera_x, 0))  # Adjust crates based on camera position
 
         # Draw projectiles, platforms, Effect Boxes and Enemys
         for projectile in projectiles:
@@ -1248,9 +1374,6 @@ def game_loop():
             box.interact(player)
 
         player.apply_gravity()
-
-        crates.update()
-        crates.draw(screen)
 
         crate_collisions = pygame.sprite.spritecollide(player, crates, False)
         for crate in crate_collisions:
@@ -1266,14 +1389,16 @@ def game_loop():
                 screen.blit(platform.image, adjusted_position.topleft)
 
         for enemy in enemies:
-            if isinstance(enemy, CandyRollEnemy):
-                # Pass the necessary arguments for CandyRollEnemy
-                enemy.update(1/60, platforms, crates, player)  # Assuming 'dt' is approximately 1/60 for 60 FPS
+            # Check if the enemy requires player position (for example, shooting enemies)
+            if isinstance(enemy, CandyRollEnemy):  # Example enemy that might need player.position
+                enemy.update(1/60, platforms, crates, player)  # Pass the required arguments
+            elif isinstance(enemy, Static_Gingerpeep_Sg2):  # Gingerpeep only needs to update without player.position
+                enemy.update()  # No player position needed
             else:
-                # Use the regular update for other enemies
-                enemy.update(player.position)
+                enemy.update(player.position)  # Other enemies might use player.position
 
             enemy.draw(screen, camera_x)
+
 
             # If the enemy has a 'shoot' method, then it can shoot at the player
             if hasattr(enemy, 'shoot'):
@@ -1290,6 +1415,12 @@ def game_loop():
                         projectile.active = False  # Remove the projectile after it hits
                         break
 
+        #gingerpeep.update(projectiles)
+
+        #if not gingerpeep.alive:
+        #    gingerpeep.die(screen, font)  # Display death message
+
+        
         for collectable in collectables:
             collectable.draw(screen, camera_x)
             collectable.interact(player, score)#need to interact with JB score
@@ -1322,7 +1453,6 @@ def game_loop():
         player.draw(screen, camera_x)
         
         #-- Handle player Weapon and effect --
-
         player.Player_effect(player)
 
         # Aim the weapon using the mouse position then draw it
@@ -1338,9 +1468,6 @@ def game_loop():
         # Reload if R key is pressed
         if keys[pygame.K_r]:
             player.weapon.reload()
-
-        #all_sprites.update()#not sure if this one is needed
-        #enemies.update() 
 
         for enemy in enemies:
             if hasattr(enemy, 'deal_damage'):
