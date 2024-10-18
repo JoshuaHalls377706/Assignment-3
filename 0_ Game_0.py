@@ -61,6 +61,7 @@ class Weapon:
     def __init__(self, name, sprite, projectile, mag_size, reload_time, attackspeed, spread=0, use_mag=True):
         self.name = name
         self.sprite = pygame.image.load(sprite).convert_alpha()
+        self.sprite = pygame.transform.scale(self.sprite, (75, 75))
         self.projectile = projectile
         self.mag_size = mag_size
         self.ammo = mag_size
@@ -932,24 +933,24 @@ class GameManager:
         Crate(5000, 200, crate_break_sound,score),
         )
         enemies = [
-            Enemy_bird(1000, 300, 50, 50, damage=0),   
-            Enemy_bird(2300, 200, 50, 50, damage=0),   
-            Enemy_bird(3150, 200, 50, 50, damage=0),   
-            Enemy_bird(3300, 400, 50, 50, damage=0),   
-            Enemy_bird(3000, 400, 50, 50, damage=0),   
-            Enemy_bird(3700, 180, 50, 50, damage=0),   #
-            Enemy_bird(4400, 180, 50, 50, damage=0),   #            
+            Enemy_bird(1000, 300, 50, 50, damage=1),   
+            Enemy_bird(2300, 200, 50, 50, damage=1),   
+            Enemy_bird(3150, 200, 50, 50, damage=1),   
+            Enemy_bird(3300, 400, 50, 50, damage=1),   
+            Enemy_bird(3000, 400, 50, 50, damage=1),   
+            Enemy_bird(3700, 180, 50, 50, damage=1),   #
+            Enemy_bird(4400, 180, 50, 50, damage=1),   #            
 
-            CandyRollEnemy(1500, 550, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(2300, 550, speed=5, damage=0.1, score=score, points=50),
-            CandyRollEnemy(2300, 550, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(3800, 550, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(3600, 550, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(4500, 550, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(4400, 500, speed=1, damage=0.1, score=score, points=50),
-            CandyRollEnemy(4450, 500, speed=5, damage=0.1, score=score, points=50),
-            CandyRollEnemy(4550, 500, speed=3, damage=0.1, score=score, points=50),
-            CandyRollEnemy(4490, 500, speed=4, damage=0.1, score=score, points=50),
+            CandyRollEnemy(1500, 550, speed=3, damage=1, score=score, points=50),
+            CandyRollEnemy(2300, 550, speed=5, damage=1, score=score, points=50),
+            CandyRollEnemy(2300, 550, speed=3, damage=1, score=score, points=50),
+            CandyRollEnemy(3800, 550, speed=3, damage=1, score=score, points=50),
+            CandyRollEnemy(3600, 550, speed=3, damage=1, score=score, points=50),
+            CandyRollEnemy(4500, 550, speed=3, damage=1, score=score, points=50),
+            CandyRollEnemy(4400, 500, speed=1, damage=1, score=score, points=50),
+            CandyRollEnemy(4450, 500, speed=5, damage=1, score=score, points=50),
+            CandyRollEnemy(4550, 500, speed=3, damage=1, score=score, points=50),
+            CandyRollEnemy(4490, 500, speed=4, damage=1, score=score, points=50),
         ]
         collectables = [
             Collectable(380, 125, 40, 40, "LemLife.png", 100, is_life=True),
@@ -1036,7 +1037,7 @@ class GameManager:
 #--------------------------------------------------------------------------------------------------LEVEL 4---BEGINING
     def level_4(self):
         global projectiles, platforms, Effect_boxes, MAP_WIDTH, MAP_HEIGHT, enemies, crates, collectables, score
-        MAP_WIDTH = 5000
+        MAP_WIDTH = 1200
         MAP_HEIGHT = 800
         projectiles = []
         platforms = []
@@ -1088,7 +1089,7 @@ def class_change_Assasin(player):
     player.maxhealth = 75
     player.health = player.maxhealth
     player.speed = 10
-    new_projectile = Projectile("Bullet_Assassin_2.png", 75, 5000, 100)
+    new_projectile = Projectile("Bullet_Assassin_2.png", 75, 5000, 200)
     new_weapon = Weapon("Sniper", "Gun_Asassin.png", new_projectile, 3, 2, 0.5, 0, True)
     
     player.weapon.projectile.sprite = new_projectile.sprite
@@ -1110,8 +1111,8 @@ def class_change_Tank(player):
     player.maxhealth = 200
     player.health = player.maxhealth
     player.speed = 3
-    new_projectile = Projectile("Bullet_Tank.png", 30, 300, 20)
-    new_weapon = Weapon("Shotgun", "Gun_Tank.png", new_projectile, 6, 1, 0, 30, True)
+    new_projectile = Projectile("Bullet_Tank.png", 20, 700, 100)
+    new_weapon = Weapon("Shotgun", "Gun_Tank.png", new_projectile, 6, 1, 0, 20, True)
     
     player.weapon.projectile.sprite = new_projectile.sprite
     player.weapon.projectile.sprite_carry = new_projectile.sprite_carry
@@ -1131,7 +1132,7 @@ def class_change_Soldier(player):
     player.maxhealth = 100
     player.health = player.maxhealth
     player.speed = 5
-    new_projectile = Projectile("Bullet_soldier.png", 40, 600, 30)
+    new_projectile = Projectile("Bullet_soldier.png", 40, 800, 100)
     new_weapon = Weapon("Machine Gun", "Gun_Soldier.png", new_projectile, 30, 1.5, 0.2, 10, True)
     
     player.weapon.projectile.sprite = new_projectile.sprite
