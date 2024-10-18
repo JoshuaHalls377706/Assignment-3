@@ -543,7 +543,7 @@ class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.alive = True
-        self.health = 10  # Dies in one shot
+        self.health = 1000  # Dies in one shot
         self.score = score
         self.animation_counter = 0
         self.animation_speed = 10
@@ -558,17 +558,18 @@ class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
                 self.image = self.frames[self.current_frame]
                 self.animation_counter = 0
 
-    def take_damage(self):
+    def take_damage(self, amount):
         # The enemy dies in one shot
-        self.health -= 1
+        self.health -= amount
         if self.health <= 0:
             self.die()
 
-    def die(self, surface, font):
+    def die(self):
         self.alive = False
+        font = pygame.font.SysFont('Comic Sans MS', 30)
         self.score.increment(self.points)  # Award points
         print("Gingerpeep defeated!")  # Debugging message
-        self.display_boss_message(surface, font)
+        self.display_boss_message(screen, font)
 
     def display_boss_message(self, surface, font):
         # The message to be displayed after Gingerpeep's death
@@ -1485,7 +1486,7 @@ def game_loop():
             for projectile in projectiles:
                 if hasattr(enemy, 'take_damage'):
                     if projectile.sprite.get_rect(center=projectile.position).colliderect(enemy.rect):
-                        enemy.take_damage(projectile.damage)
+                        enemy.take_damage(player.weapon.projectile.damage)
                         projectile.active = False  # Remove the projectile after it hits
                         break
       
