@@ -775,7 +775,6 @@ class GameManager:
             CandyRollEnemy(3450, 550, speed=3, damage=0.1, score=score, points=50),
             CandyRollEnemy(3650, 550, speed=5, damage=0.1, score=score, points=50),
             CandyRollEnemy(4400, 550, speed=3, damage=0.1, score=score, points=50),
-            #Static_Gingerpeep_Sg2(4465,100,50,50,damage=10, score=score),
         ]
         collectables = [
             Collectable(500, 180, 40, 40, "LemLife.png", 100, is_life=True),
@@ -947,12 +946,12 @@ class GameManager:
             Collectable(4900, 400, 40, 40, "Lempoints.png", 20),  
         ]
     
-        Boss_Gingerpeep(health=300, damage=20, shoot_range=500, projectile_sprites=GINGERPEEP_PROJECTILES, position=(4600, GL),
-        sprite_frames=GINGERPEEP_FRAMES, 
-        game_manager=Game_Manager, 
-        screen_width=1200, 
-        score=score
-        )
+        #Boss_Gingerpeep(health=300, damage=20, shoot_range=500, projectile_sprites=GINGERPEEP_PROJECTILES, position=(4600, GL),
+        #sprite_frames=GINGERPEEP_FRAMES, 
+        #game_manager=Game_Manager, 
+        #screen_width=1200, 
+        #score=score
+        #)
         
         score.increment(0)
         print("Level 3 loaded.")
@@ -970,7 +969,9 @@ class GameManager:
         platforms = []
         Effect_boxes = []
         crates = pygame.sprite.Group()
-        enemies = []
+        enemies = [
+        Static_Gingerpeep_Sg2(900,100,50,50,damage=10, score=score),
+        ]
         collectables = []
         score.increment(0)
         print("Level 4 loaded.")
@@ -1330,7 +1331,7 @@ clock = pygame.time.Clock()
 #Graphic initialisations
 background0_image = pygame.image.load("BG_0.png").convert()
 background_stage1 = pygame.image.load("BG_0_portals.png").convert()
-
+background_stage4 = pygame.image.load("BG_boss.png").convert()
 
 #In Game Headingsdddd
 Ammo = pygame.image.load("M0.png").convert_alpha()
@@ -1415,7 +1416,15 @@ def game_loop():
             color = 0, 150, 255 
             display_message(message_1, font, color, screen, 200, 90)
             display_message(message_2, font, color, screen, 200, 130) 
-
+        if Game_Manager.current_level == 4:
+            # Blit the unique background for Stage 4
+            screen.blit(background_stage4, (0,0))
+            font = pygame.font.SysFont('Comic Sans MS', 40)
+            message_1 = f"Lemon Guy, oh and you brought {player_name}, how sweet."
+            message_2 = "I hear you didn't like the surprise I left for you?"
+            color = 255, 255, 224 
+            display_message(message_1, font, color, screen, 200, 3090)
+            display_message(message_2, font, color, screen, 200, 3130) 
         else:
             screen.blit(background0_image, (0, 0))
 
@@ -1465,7 +1474,6 @@ def game_loop():
 
             enemy.draw(screen, camera_x)
 
-
             # If the enemy has a 'shoot' method, then it can shoot at the player
             if hasattr(enemy, 'shoot'):
                 enemy_projectiles = enemy.shoot(player.position, camera_x)
@@ -1480,13 +1488,7 @@ def game_loop():
                         enemy.take_damage(projectile.damage)
                         projectile.active = False  # Remove the projectile after it hits
                         break
-
-        #gingerpeep.update(projectiles)
-
-        #if not gingerpeep.alive:
-        #    gingerpeep.die(screen, font)  # Display death message
-
-        
+      
         for collectable in collectables:
             collectable.draw(screen, camera_x)
             collectable.interact(player, score)#need to interact with JB score
