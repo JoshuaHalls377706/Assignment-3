@@ -549,6 +549,12 @@ class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
         self.animation_speed = 10
         self.points = 1000  # Points awarded when enemy dies
 
+        #-- Shooting --
+        self.last_shot_time = 0
+        self.attackspeed = 2
+        self.projectile = Projectile("Bullet_Tank.png", 20, 700, 50)
+        self.spread = 30
+
     def update(self):
         if self.alive:
             # Animate the enemy
@@ -604,6 +610,35 @@ class Static_Gingerpeep_Sg2(pygame.sprite.Sprite):
         if self.alive:
             draw_x = self.rect.x - camera_x
             surface.blit(self.image, (draw_x, self.rect.y))
+    
+    def attack(self, player_position):
+        current_time = pygame.time.get_ticks()
+        if (current_time - self.last_shot_time >= self.attackspeed * 1000):
+            self.last_shot_time = current_time
+
+            # Create a new projectile
+            new_projectile = Projectile(
+                self.projectile.sprite_carry,
+                self.projectile.bullet_speed,
+                self.projectile.range,
+                self.projectile.damage
+            )
+
+            # Set projectile's starting position
+            new_projectile.position = [self.rect.centerx, self.rect.centery]
+
+            # Calculate direction to the player
+            direction_vector = pygame.Vector2(player_position[0] - new_projectile.position[0], 
+                                               player_position[1] - new_projectile.position[1])
+            direction_vector.normalize_ip()  # Normalize the vector
+
+            # Apply spread
+            angle_variation = random.uniform(-self.spread, self.spread) * (math.pi / 180)  # Convert degrees to radians
+            angle = math.atan2(direction_vector.y, direction_vector.x) + angle_variation
+            new_projectile.direction = (math.cos(angle), math.sin(angle))
+
+            return new_projectile
+        return None
 
 class Collectable:
     def __init__(self, x, y, width, height, sprite, value=1,is_health = False, is_life=False):
@@ -1470,6 +1505,7 @@ def game_loop():
                 enemy.update(1/60, platforms, crates, player)  # Pass the required arguments
             elif isinstance(enemy, Static_Gingerpeep_Sg2):  # Gingerpeep only needs to update without player.position
                 enemy.update()  # No player position needed
+                enemy.attack(player.position)
             else:
                 enemy.update(player.position)  # Other enemies might use player.position
 
